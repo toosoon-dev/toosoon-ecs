@@ -11,12 +11,12 @@ export default abstract class Entity {
   /**
    * Static reference to Entity id
    */
-  static id = 1;
+  static id: number = 1;
 
   /**
    * Unique identifier of an instance of this entity
    */
-  public id: number;
+  readonly id: number;
 
   /**
    * List of components attached to this entity
@@ -108,12 +108,12 @@ export default abstract class Entity {
   }
 
   /**
-   * Return a components list by type
+   * Get all components with a specified type
    *
    * @param {number} type
    * @returns {Component[]}
    */
-  public getComponent(type: number): Component[] {
+  public getComponents(type: number): Component[] {
     return [...this.components[type]];
   }
 }

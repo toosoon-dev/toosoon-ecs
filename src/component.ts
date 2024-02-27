@@ -1,6 +1,6 @@
 import Entity from './entity';
 
-export type ComponentClassType<P> = (new (data: P) => Component<P>) & {
+type ComponentClassType<P> = (new (data: P) => Component<P>) & {
   /**
    * Unique reference to this component type id
    */
@@ -33,12 +33,12 @@ export default abstract class Component<T = any> {
   /**
    * Static reference to Component type
    */
-  static type = 1;
+  static type: number = 1;
 
   /**
-   * Unique identifier of an instance of Component
+   * Unique identifier of this component type
    */
-  public type: number;
+  readonly type: number;
 
   /**
    * Values stored by this component
@@ -48,8 +48,12 @@ export default abstract class Component<T = any> {
   /**
    * Secondary values used to save miscellaneous data required by some specialized systems
    */
-  public attr: { [key: string]: any } = {};
+  public attributes: any = {};
 
+  /**
+   * @param {number} type Unique identifier of this component type
+   * @param {T} data      Initial values stored by this component
+   */
   constructor(type: number, data: T) {
     this.type = type;
     this.data = data;

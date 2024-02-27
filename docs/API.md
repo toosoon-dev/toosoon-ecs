@@ -1,372 +1,522 @@
 # ECS API
 
-Entity-Component-System (ECS) is a distributed and compositional architectural design pattern that is mostly used in game development. It enables flexible decoupling of domain-specific behaviour, which overcomes many of the drawbacks of traditional object-oriented inheritance.
-
 ## World
 
-A `World` instance is used to describe your game world. The World is a container for Entities, Components, and Systems.
+The very definition of the ECS World.
+
+- [new World()](#world-contructor)
+  - `static` [.Entity](#world-static-entity): `Class<Entity>`
+  - `static` [.Component](#world-static-component): `Class<Component>`
+  - `static` [.System](#world-static-system): `Class<System>`
+  - [.id](#world-id): `string`
+  - [.timeScale](#world-time-scale): `number`
+  - [.setState(state)](#world-set-state-method)
+  - [.addEntity(entity)](#world-add-entity-method)
+  - [.removeEntity(id)](#world-remove-entity-method)
+  - [.addSystem(system)](#world-add-system-method)
+  - [.removeSystem(id)](#world-remove-system-method)
+  - [.query(componentTypes)](#world-query-method): `Iterator`
+  - [.queryEntitiesByComponent(componentType)](#world-query-entities-by-component-method): `Entity[]`
+  - [.update()](#world-update-method)
+  - [.destroy()](#world-destroy-method)
+  - [.getEntity(id)](#world-get-entity-method): `Entity | undefined`
+  - [.getSystem(id)](#world-get-system-method): `System | undefined`
+  - [.getActiveSystems()](#world-get-system-method): `System[]`
+  - [.logActiveSystems()](#world-log-active-systems-method)
+
+### Contructor <a id="world-contructor"></a>
+
+| Parameter | Type       | Default | Description                          |
+| --------- | ---------- | ------- | ------------------------------------ |
+| id        | `string`   | `''`    | The world unique identifier.         |
+| systems   | `System[]` | `[]`    | Initial systems to add to the world. |
+
+### Properties
+
+##### `static` Entity <a id="world-static-entity"></a>
+
+Static reference to Entity class.
 
 ```ts
-import World from 'toosoon-ecs';
-
-const world = new World();
+static World.Entity: Class<Entity>;
 ```
 
-## Component
+##### `static` Component <a id="world-static-component"></a>
 
-Represents the different facets of an entity, such as position, velocity, geometry, physics, and hit points for example. Components store only raw data for one aspect of the object, and how it interacts with the world.
-
-In other words, the component labels the entity as having this particular aspect.
+Static reference to Component class.
 
 ```ts
-import { Component } from 'toosoon-ecs';
-
-export interface Box {
-  width: number;
-  height: number;
-  depth: number;
-}
-
-export const BoxComponent = Component.register<Box>();
+static World.Component: Class<Component>;
 ```
 
-The register method generates a new class that represents this type of component, which has a unique identifier. You also have access to the type id from the created instances.
+##### `static` System <a id="world-static-system"></a>
+
+Static reference to System class.
 
 ```ts
-const boxComponent = new BoxComponent({ width: 10, height: 10, depth: 10 });
-console.log(boxComponent.type === BoxComponent.type); // true (in this case type = 1)
+static World.System: Class<System>;
 ```
 
-### Raw data access
+##### id <a id="world-id"></a>
 
-Component instance displays raw data by property `data`.
+The world unique identifier.
 
 ```ts
-boxComponent.data.width = 33;
-console.log(boxComponent.data.width); // 33
+World.id: readonly string;
 ```
 
-### Secondary attributes
+##### timeScale <a id="world-time-scale"></a>
 
-A component can have attributes. Attributes are secondary values used to save miscellaneous data required by some specialized systems.
+Allow you to apply slow motion effect on systems.
+When timeScale is 1, the timestamp and delta parameters received by the systems are consistent with the actual timestamp.
+When timeScale is 0.5, the values received by systems will be half of the actual value.
+
+> ATTENTION! The systems continue to be invoked obeying their normal frequencies, what changes is only the values received in the timestamp and delta parameters.
 
 ```ts
-boxComponent.attr.specializedSystemMetadata = 33;
-console.log(boxComponent.attr.specializedSystemMetadata); // 33
+World.timeScale: number;
+```
+
+### Methods
+
+##### setState(state) <a id="world-set-state-method"></a>
+
+Update the world state.
+
+```ts
+World.setState(state: string): void;
+```
+
+##### addEntity(entity) <a id="world-add-entity-method"></a>
+
+Add an entity to the world.
+
+```ts
+World.addEntity(entity: Entity): void;
+```
+
+##### removeEntity(id) <a id="world-remove-entity-method"></a>
+
+Remove an entity from the world.
+
+```ts
+World.removeEntity(id: number | Entity, dispose?: boolean): void;
+```
+
+##### addSystem(system) <a id="world-add-system-method"></a>
+
+Add a system to the world.
+
+```ts
+World.addSystem(system: System): void;
+```
+
+##### removeSystem(id) <a id="world-remove-system-method"></a>
+
+Remove a system from the world.
+
+```ts
+World.removeSystem(id: number | System): void;
+```
+
+##### query(componentTypes) <a id="world-query-method"></a>
+
+Search for all entities that have a specific set of components.
+
+```ts
+World.query(componentTypes: number[]): Iterator<Entity>;
+```
+
+##### queryEntitiesByComponent(componentType) <a id="world-query-entities-by-component-method"></a>
+
+Search for all entities that have a specific component.
+
+```ts
+World.queryEntitiesByComponent(componentType: number): Entity[];
+```
+
+##### update() <a id="world-update-method"></a>
+
+Call the `update` method of the systems in the world.
+
+```ts
+World.update(): void;
+```
+
+##### destroy() <a id="world-destroy-method"></a>
+
+Remove all entities and systems in the world.
+
+```ts
+World.destroy(): void;
+```
+
+##### getEntity(id) <a id="world-get-entity-method"></a>
+
+Get an entity by id.
+
+```ts
+World.getEntity(id: number): Entity | undefined;
+```
+
+##### getSystem(id) <a id="world-get-system-method"></a>
+
+Get a system by id.
+
+```ts
+World.getSystem(id: number): System | undefined;
+```
+
+##### getActiveSystems() <a id="world-get-active-systems-method"></a>
+
+Get all active systems, or matching a specified `state`.
+
+```ts
+World.getActiveSystems(state?: string): System[];
+```
+
+##### logActiveSystems() <a id="world-log-active-systems-method"></a>
+
+Log in the console an array of active systems, or matching a specified `state`.
+
+```ts
+World.logActiveSystems(state?: string): void;
 ```
 
 ## Entity
 
-The entity is a general purpose object. An entity is what you use to describe an object in your game. It consists only of a unique ID and the list of components that make up this entity.
+Representation of an entity in ECS.
+
+- new Entity()
+  - `static` [.id](#entity-static-id): `number`
+  - [.id](#entity-id): `number`
+  - [.components](#entity-components): `{ [key: number]: Component[] }`
+  - [.active](#entity-entity): `boolean`
+  - [.add(component)](#entity-add-method)
+  - [.remove(component)](#entity-remove-method)
+  - [.onAdded?()](#entity-on-added-method)
+  - [.onRemoved?()](#entity-on-removed-method)
+  - [.subscribe(susbcription)](#entity-subscribe-method): `Function`
+  - [.getComponents(type)](#entity-get-components-method): `Component[]`
+
+### Properties
+
+##### `static` id <a id="entity-static-id"></a>
+
+Static reference to Entity id.
 
 ```ts
-import { Entity } from 'toosoon-ecs';
-import { Box, BoxComponent } from '../components/BoxComponent';
-import { ColorComponent } from '../components/ColorComponent';
-
-export default class CubeEntity extends Entity {
-  constructor(box: Box, color: string) {
-    super();
-
-    this.add(new BoxComponent(box));
-    this.add(new ColorComponent(color));
-  }
-}
+static Entity.id: number;
 ```
 
-### Adding and removing from the world
+##### id <a id="entity-id"></a>
 
-You can add multiple instances of the same entity in the world. Each entity is given a unique identifier at creation time.
+Unique identifier of an instance of the entity.
 
 ```ts
-const cube = new CubeEntity({ width: 10, height: 10, depth: 10 }, '#FF0000');
-
-world.addEntity(cube);
-
-world.removeEntity(cube);
-world.removeEntity(cube.id);
+Entity.id: readonly number;
 ```
 
-### Adding and removing components
+##### components <a id="entity-components"></a>
 
-At any point in the entity's life cycle, you can add or remove components, using `add` and `remove` methods.
+List of components attached to the entity.
 
 ```ts
-cube.add(boxComponent);
-cube.remove(boxComponent);
+Entity.components: { [key: number]: Component[] };
 ```
 
-Entities can have more than one component per type, it is up to the developer to control the addition and removal of entity components.
+### Methods
+
+##### add(component) <a id="entity-add-method"></a>
+
+Add a component to the entity.
 
 ```ts
-cube.add(new BoxComponent({ width: 10, height: 10, depth: 10 }));
-cube.add(new BoxComponent({ width: 20, height: 20, depth: 20 }));
+Entity.add(component: Component): void;
 ```
 
-### Subscribing to changes
+##### remove(component) <a id="entity-remove-method"></a>
 
-You can be informed when a component is added or removed from an entity by simply subscribing to the entity.
+Remove a component from the entity.
 
 ```ts
-const unsubscribe = cube.subscribe((entity) => console.log(entity));
-
-unsubscribe();
+Entity.remove(component: Component): void;
 ```
 
-### Accessing components
+##### onAdded?() <a id="entity-on-added-method"></a>
 
-To gain access to the components of an entity, simply use the `allFrom` and `oneFrom` methods of the `Component` class to get all or the first instance of this component respectively.
+Called when the entity is added to the world.
 
 ```ts
-BoxComponent.allFrom(cube).forEach((boxComponent) => console.log(boxComponent.data.height));
+Entity.onAdded?(): void;
+```
 
-const boxComponent = BoxComponent.oneFrom(cube);
-console.log(boxComponent.data.height);
+##### onRemoved?() <a id="entity-on-removed-method"></a>
+
+Called when the entity is removed from the world.
+
+```ts
+Entity.onRemoved?(): void;
+```
+
+##### subscribe(susbcription) <a id="entity-subscribe-method"></a>
+
+Allow interested parties to receive information when the entity's component list is updated.
+
+```ts
+Entity.subscribe(susbcription: Function): Function;
+```
+
+##### getComponents(type) <a id="entity-get-components-method"></a>
+
+Get all components with a specified type.
+
+```ts
+Entity.getComponents(type: number): Component[];
 ```
 
 ## System
 
-Represents the logic that transforms component data of an entity from its current state to its next state. A system runs on entities that have a specific set of component types.
+Represent the logic that transforms component data of an entity from its current state to its next state. A system runs on entities that have a specific set of component types.
 
-Each system runs continuously (as if each system had its own thread).
+- [new System([componentTypes])](#system-contructor)
+  - `static` [.id](#system-static-id): `number`
+  - [.id](#system-id): `number`
+  - [.componentTypes](#system-component-types): `number[]`
+  - [.states](#system-states): `string[]`
+  - [.frequency](#system-frequency): `number`
+  - [.listeners](#system-listeners): `{ [event: string]: Function[] }`
+  - [.world](#system-world): `World`
+  - [.trigger?(event, data)](#system-trigger-method)
+  - [.enter?(entity)](#system-enter-method)
+  - [.exit?(entity)](#system-exit-method)
+  - [.onAdded?()](#system-on-added-method)
+  - [.onRemoved?()](#system-on-removed-method)
+  - [.onStateChange?(newState, prevState)](#system-on-state-change-method)
+  - [.change?(entity)](#system-change-method)
+  - [.update?(time, delta, entity)](#system-update-method)
+  - [.beforeUpdateAll?(time, delta, entities)](#system-before-update-all-method)
+  - [.afterUpdateAll?(time, delta, entities)](#after-before-update-all-method)
+  - [.destroy()](#system-destroy-method)
 
-A system has a strong connection with component types. You must define which components this system works on in the `System` abstract class constructor.
+### Contructor <a id="system-contructor"></a>
 
-If the `update` method is implemented, it will be called for every update in the world if the system `states` array includes the current state of the world. Whenever an entity with the characteristics expected by this system is added or removed on the world, or it components is changed, the system is informed via the `enter`, `exit` and `change` methods. Alongside, when the world state changes, the system is informed via the `onStateChange` method.
+| Parameter      | Type       | Default   | Description                                                                                |
+| -------------- | ---------- | --------- | ------------------------------------------------------------------------------------------ |
+| componentTypes | `number[]` |           | IDs of the types of components the system expects the entity to have before it can act on. |
+| states         | `string[]` | `['Any']` | An array of states that allow the `update` method to be called.                            |
+| frequency      | `number`   | `0`       | The maximum times per second this system should be updated.                                |
+
+### Properties
+
+##### `static` id <a id="system-static-id"></a>
+
+Static reference to System id.
 
 ```ts
-import { Entity, System } from 'toosoon-ecs';
-import KeyboardState from '../utils/KeyboardState';
-import { BoxComponent } from '../components/BoxComponent';
-import { Object3DComponent } from '../components/Object3DComponent';
-
-export default class KeyboardSystem extends System {
-  constructor() {
-    super([Object3DComponent.type, BoxComponent.type]);
-  }
-
-  update(time: number, delta: number, entity: Entity): void {
-    const { data: object3D } = Object3DComponent.oneFrom(entity);
-    if (KeyboardState.pressed('right')) {
-      object3D.translateX(0.3);
-    } else if (KeyboardState.pressed('left')) {
-      object3D.translateX(-0.3);
-    } else if (KeyboardState.pressed('up')) {
-      object3D.translateZ(-0.3);
-    } else if (KeyboardState.pressed('down')) {
-      object3D.translateZ(0.3);
-    }
-  }
-}
+static System.id: number;
 ```
 
-### Adding and removing from the world
+##### id <a id="system-id"></a>
 
-To add or remove a system to the world, simply use the `addSystem` and `removeSystem` methods.
+Unique identifier of an instance of the system.
 
 ```ts
-const keyboardSystem = new KeyboardSystem();
-
-world.addSystem(keyboardSystem);
-world.removeSystem(keyboardSystem);
+System.id: readonly number;
 ```
 
-### Global systems
+##### componentTypes <a id="system-component-types"></a>
 
-You can also create systems that receive updates from all entities, regardless of existing components. To do this, simply enter `[-1]` in the system builder. This functionality may be useful for debugging and other rating mechanisms for your game.
+IDs of the types of components the system expects the entity to have before it can act on. If you want to create a system that acts on all entities, enter `[-1]`.
 
 ```ts
-import { Entity, System } from 'toosoon-ecs';
-
-// Log all entities
-export default class LogSystem extends System {
-  constructor() {
-    super([-1]);
-  }
-
-  update(time: number, delta: number, entity: Entity): void {
-    console.log(entity);
-  }
-}
+System.componentTypes: readonly number[];
 ```
 
-### Limiting frequency (FPS)
+##### states <a id="system-states"></a>
 
-It is possible to limit the maximum number of invocations that the `update` method can perform per second (FPS) by simply entering the `frequency` parameter in the class constructor. This control is useful for example to limit the processing of physics systems to a specific frequency in order to decrease the processing cost.
+An array of states that allow the `update` method to be called.
 
 ```ts
-export default class PhysicsSystem extends System {
-  constructor() {
-    super([Object3DComponent.type], 25); // FPS limit
-  }
-
-  // Will run at 25 FPS
-  update(time: number, delta: number, entity: Entity): void {
-    //... physics stuff
-  }
-}
+System.states: readonly string[];
 ```
 
-### Time Scaling - Slow motion effect
+##### frequency <a id="system-frequency"></a>
 
-A very interesting feature is the TIMESCALE. This allows you to change the rate that time passes in the game, also known as the timescale. You can set the timescale by changing the `timeScale` property of the world.
-
-A time scale of 1 means normal speed. 0.5 means half the speed and 2.0 means twice the speed. If you set the game's timescale to 0.1, it will be ten times slower but still smooth - a good slow motion effect!
-
-The timescale works by changing the value returned in the `time` and `delta` arguments of the system `update` method. This means that the behaviors are affected and any movement using `delta`. If you do not use `delta` in your motion calculations, motion will not be affected by the timescale! Therefore, to use the timescale, simply use the `delta` correctly in all movements.
-
-> ATTENTION! The systems continue to be invoked obeying their normal frequencies, what changes is only the values received in the `time` and `delta` parameters.
-
-### Pausing
-
-You can set the timescale to 0. This stops all movement. It is an easy way to pause the game. Go back to 1 and the game will resume.
-
-You may find that you can still do things like shoot using the game controls. You can get around this by placing your main game events in a group and activating/deactivating that group while pausing and not pausing.
-
-It's also a good way to test if you used `delta` correctly. If you used it correctly, setting the timescale to 0 will stop everything in the game. If you have not used it correctly, some objects may keep moving even if the game should be paused! In this case, you can check how these objects are moved and make sure you are using `delta` correctly.
-
-### World states
-
-It is also possible to limit the `update` invocations by entering the world `states` parameter in the class constructor. The system will then only be updated when the world current state matches the system's states.
+The maximum times per second the system should be updated.
 
 ```ts
-export default class LoaderSystem extends System {
-  constructor() {
-    super([-1], [WorldState.Loading], 25);
-  }
-
-  // Will only run while the world state is `Loading` (at 25 FPS)
-  update(time: number, delta: number, entity: Entity): void {
-    // ... loader animations
-  }
-}
+System.frequency: readonly number;
 ```
 
-> If the second parameter is a `number`, it will be passed as the `frequency`, otherwise it will be interpreted as the `states` and the third parameter will be passed as the `frequency`.
+##### listeners <a id="system-listeners"></a>
 
-In order to update all the systems according to the world state, it is necessary to manually set the different states based on your game logic.
+<!--  -->
 
 ```ts
-world.setState(WorldState.Loading);
-
-loader.load().then(() => {
-  world.setState(WorldState.Setup);
-});
+System.listeners: readonly { [event: string]: Function[] };
 ```
 
-### Before and After update
+##### world <a id="system-world"></a>
 
-If necessary, the system can be informed before and after executing the update of its entities in this interaction (respecting the execution frequency defined for that system).
+Reference to the ECS world.
 
 ```ts
-import { Entity, System } from 'tooson-ecs';
-
-// Log all entities every 2 seconds (0.5 FPS)
-export default class LogSystem extends System {
-  constructor() {
-    super([-1], 0.5);
-  }
-
-  beforeUpdateAll(time: number): void {
-    console.log('Before update');
-  }
-
-  update(time: number, delta: number, entity: Entity): void {
-    console.log(entity);
-  }
-
-  afterUpdateAll(time: number, entities: Entity[]): void {
-    console.log('After update');
-  }
-}
+System.world!: World;
 ```
 
-### Enter - When adding new entities
+### Methods
 
-Called when:
+##### trigger(event, data) <a id="system-trigger-method"></a>
 
-- An entity with the characteristics (components) expected by this system is added in the world.
-- This system is added in the world and this world has one or more entities with the characteristics expected by this system.
-- An existing entity in the same world receives a new component at runtime and all of its new components match the standard expected by this system.
-
-It can be used for initialization of new components in this entity, or even registration of this entity in a more complex management system.
+Allow to trigger any event. Systems interested in this event will be notified immediately.
 
 ```ts
-import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three';
-import { Entity, System } from 'toosoon-ecs';
-import { BoxComponent } from '../components/BoxComponent';
-import { ColorComponent } from '../components/ColorComponent';
-import { Object3DComponent } from '../components/Object3DComponent';
-
-export default class CubeFactorySystem extends System {
-  constructor() {
-    super([ColorComponent.type, BoxComponent.type]);
-  }
-
-  enter(entity: Entity): void {
-    const object = Object3DComponent.oneFrom(entity);
-
-    if (!object) {
-      const box = BoxComponent.oneFrom(entity).data;
-      const color = ColorComponent.oneFrom(entity).data;
-
-      const geometry = new BoxGeometry(box.width, box.height, box.depth);
-      const material = new MeshBasicMaterial({ color });
-      const cube = new Mesh(geometry, material);
-
-      // Add new component to entity
-      entity.add(new Object3DComponent(cube));
-    }
-  }
-}
+System.trigger?: (event: string, data: unknown) => void;
 ```
 
-### Change - When you add or remove components
-
-A system can also be informed when adding or removing components of an entity by simply implementing the `change` method.
+##### enter(entity) <a id="system-enter-method"></a>
 
 ```ts
-import { Component, Entity, System } from 'toosoon-ecs';
-
-// Log all entities every 2 seconds (0.5 FPS)
-export default class LogSystem extends System {
-  constructor() {
-    super([-1], 0.5);
-  }
-
-  change(entity: Entity, added?: Component<any>, removed?: Component<any>): void {
-    console.log(entity, added, removed);
-  }
-}
+System.enter?(entity: Entity): void;
 ```
 
-### Exit - When removing entities
-
-Called when:
-
-- An entity with the characteristics (components) expected by this system is removed from the world.
-- This system is removed from the world and this world has one or more entities with the characteristics expected by this system.
-- An existing entity in the same world loses a component at runtime and its new component set no longer matches the standard expected by this system.
-
-Can be used to clean memory and references.
+##### exit(entity) <a id="system-exit-method"></a>
 
 ```ts
-import { Scene } from 'three';
-import { Entity, System } from 'toosoon-ecs';
-import { Object3DComponent } from '../components/Object3DComponent';
+System.exit?(entity: Entity): void;
+```
 
-export default class SceneObjectSystem extends System {
-  private scene: Scene;
+##### onAdded() <a id="system-on-added-method"></a>
 
-  constructor(scene: Scene) {
-    super([Object3DComponent.type]);
+```ts
+System.onAdded?(): void;
+```
 
-    this.scene = scene;
-  }
+##### onRemoved() <a id="system-on-removed-method"></a>
 
-  exit(entity: Entity): void {
-    const model = Object3DComponent.oneFrom(entity);
-    this.scene.remove(model.data);
-  }
-}
+```ts
+System.onRemoved?(): void;
+```
+
+##### onStateChange(newState, prevState) <a id="system-on-state-change-method"></a>
+
+```ts
+System.onStateChange?(newState: string, prevState: string): void;
+```
+
+##### change(entity) <a id="system-change-method"></a>
+
+```ts
+System.change?(entity: Entity, added?: Component, removed?: Component): void;
+```
+
+##### update(time, delta, entity) <a id="system-update-method"></a>
+
+```ts
+System.update?(time: number, delta: number, entity: Entity): void;
+```
+
+##### beforeUpdateAll(time, delta, entities) <a id="system-before-update-all-method"></a>
+
+```ts
+System.beforeUpdateAll?(time: number, delta: number, entities: Entity[]): void;
+```
+
+##### afterUpdateAll(time, delta, entities) <a id="system-after-update-all-method"></a>
+
+```ts
+System.afterUpdateAll?(time: number, delta: number, entities: Entity[]): void;
+```
+
+##### destroy() <a id="system-destroy-method"></a>
+
+```ts
+System.destroy(): void;
+```
+
+## Component
+
+- Component
+  - `static` [register\<P\>()](#component-static-register-method): `Class<Component<T>>`
+
+### Methods
+
+##### `static` register\<P\>() <a id="component-static-register-method"></a>
+
+Register a new component class.
+
+```ts
+static Component.register<P>(): Class<Component<P>>;
+```
+
+## Component\<T\>
+
+Representation of a component in ECS.
+
+- [new Component\<T\>(type, data)](#component-contructor)
+  - `static` [.type](#component-static-type): `number`
+  - [.type](#component-type): `number`
+  - [.data](#component-data): `T`
+  - [.attributes](#component-attributes): `any`
+  - `static` [.allFrom(entity)](#component-static-all-from-method): `Array<Component<T>>`
+  - `static` [.oneFrom(entity)](#component-static-one-from-method): `Component<T>`
+
+### Contructor <a id="component-contructor"></a>
+
+| Parameter | Type     | Default | Description                              |
+| --------- | -------- | ------- | ---------------------------------------- |
+| type      | `number` |         | Unique identifier of the component type. |
+| data      | `T`      |         | Initial values stored by the component.  |
+
+### Properties
+
+##### `static` type <a id="component-static-type"></a>
+
+Unique reference to the component type id.
+
+```ts
+static Component<T>.type: number;
+```
+
+##### type <a id="component-type"></a>
+
+Unique identifier of the component type.
+
+```ts
+Component<T>.type: readonly number;
+```
+
+##### data <a id="component-data"></a>
+
+Values stored by the component.
+
+```ts
+Component<T>.data: T;
+```
+
+##### attributes <a id="component-attributes"></a>
+
+Secondary values used to save miscellaneous data required by some specialized systems.
+
+```ts
+Component<T>.attributes: any;
+```
+
+### Methods
+
+##### `static` allFrom(entity) <a id="#component-static-all-from-method"></a>
+
+Return all instances of the component from entity.
+
+```ts
+static Component<T>.allFrom(entity: Entity): Array<Component<T>>;
+```
+
+##### `static` oneFrom(entity) <a id="#component-static-one-from-method"></a>
+
+Return the first instance of the component from entity.
+
+```ts
+static Component<T>.oneFrom(entity: Entity): Component<T>;
 ```

@@ -18,7 +18,7 @@ export default abstract class System {
   /**
    * Static reference to System id
    */
-  static id = 1;
+  static id: number = 1;
 
   /**
    * Unique identifier of an instance of this system
@@ -27,12 +27,12 @@ export default abstract class System {
 
   /**
    * IDs of the types of components this system expects the entity to have before it can act on
-   * Note: If you want to create a system that acts on all entities, enter [-1]
+   * If you want to create a system that acts on all entities, enter [-1]
    */
   readonly componentTypes: number[] = [];
 
   /**
-   * An array of states that allow the update function to be called
+   * An array of states that allow the `update` method to be called
    */
   readonly states: string[] = [];
 
@@ -59,7 +59,6 @@ export default abstract class System {
 
   /**
    * Allow to trigger any event. Systems interested in this event will be notified immediately
-   *
    * Injected by ECS at runtime
    *
    * @param {string} event
@@ -115,6 +114,15 @@ export default abstract class System {
   public change?(entity: Entity, added?: Component, removed?: Component): void;
 
   /**
+   * Called in updates, limited to the value set by the `frequency` property
+   *
+   * @param {number} time
+   * @param {number} delta
+   * @param {Entity} entity
+   */
+  public update?(time: number, delta: number, entity: Entity): void;
+
+  /**
    * Called before updating entities available for this system
    * It is only called when there are entities with the characteristics expected by this system
    *
@@ -123,15 +131,6 @@ export default abstract class System {
    * @param {Entity[]} entities
    */
   public beforeUpdateAll?(time: number, delta: number, entities: Entity[]): void;
-
-  /**
-   * Called in updates, limited to the value set by the `frequency` property
-   *
-   * @param {number} time
-   * @param {number} delta
-   * @param {Entity} entity
-   */
-  public update?(time: number, delta: number, entity: Entity): void;
 
   /**
    * Called after performing update of entities available for this system
@@ -145,7 +144,7 @@ export default abstract class System {
 
   /**
    * @param {number[]} componentTypes IDs of the types of components this system expects the entity to have before it can act on
-   * @param {string[]} [states='Any'] An array of states that allow the update function to be called
+   * @param {string[]} [states='Any'] An array of states that allow the `update` method to be called
    * @param {number} [frequency=0]    The maximum times per second this system should be updated
    */
   constructor(componentTypes: number[], states: string[] | number = [ECSState.Any], frequency: number = 0) {
@@ -169,7 +168,7 @@ export default abstract class System {
    *
    * @param {string} event
    * @param {Listener} listener
-   * @param {boolean} once
+   * @param {boolean} [once]
    */
   protected addListener(event: string, listener: Listener, once?: boolean): void {
     if (!this.listeners.hasOwnProperty(event)) {
@@ -183,7 +182,6 @@ export default abstract class System {
         callback(data, entities);
 
         const index = this.listeners[event].indexOf(listener);
-
         if (index >= 0) {
           this.listeners[event].splice(index, 1);
         }

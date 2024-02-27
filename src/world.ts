@@ -13,11 +13,22 @@ import { Iterator } from './utils';
  * @class
  */
 export default class World {
+  /**
+   * Static reference to Entity class
+   */
   public static Entity = Entity;
+
+  /**
+   * Static reference to Component class
+   */
   public static Component = Component;
+
+  /**
+   * Static reference to System class
+   */
   public static System = System;
 
-  public id = '';
+  readonly id: string;
 
   /**
    * All systems in this world
@@ -83,19 +94,12 @@ export default class World {
   private gameTime: number = 0;
 
   /**
-   * @param {string} id
+   * @param {string} [id='']
    * @param {System[]} [systems=[]]
    */
-  constructor(id: string, systems: System[] = []) {
+  constructor(id: string = '', systems: System[] = []) {
     this.id = id;
     systems.forEach((system) => this.addSystem(system));
-  }
-
-  /**
-   * Log in the console an array of currently active systems
-   */
-  public logActiveSystems(): void {
-    console.log('logActiveSystems()', this.getActiveSystems());
   }
 
   /**
@@ -116,7 +120,7 @@ export default class World {
   };
 
   /**
-   * Update state
+   * Update this world state
    *
    * @param {string} state
    */
@@ -160,11 +164,12 @@ export default class World {
   /**
    * Remove an entity from this world
    *
-   * @param {Entity|number} instance
+   * @param {number|Entity} id
    * @param {boolean} [dispose=true]
    */
-  public removeEntity(instance: Entity | number, dispose: boolean = true): void {
-    let entity = (typeof instance === 'number' ? this.getEntity(instance) : instance) as Entity;
+  public removeEntity(id: number | Entity, dispose: boolean = true): void {
+    // Handle `id` argument as `Entity`
+    let entity = typeof id === 'number' ? (this.getEntity(id) as Entity) : id;
 
     if (!entity) {
       return;
@@ -173,9 +178,9 @@ export default class World {
     // Clear up queryCache
     const removeCached: number[] = [];
     Object.keys(this.queryCache).forEach((component) => {
-      const index = Number(component);
-      if (entity.getComponent(index).length > 0) {
-        removeCached.push(index);
+      const type = Number(component);
+      if (entity.getComponents(type).length > 0) {
+        removeCached.push(type);
       }
     });
 
@@ -251,36 +256,41 @@ export default class World {
   /**
    * Remove a system from this world
    *
-   * @param {System} system
+   * @param {number|System} id
    */
-  public removeSystem(system: System): void {
-    const index = this.systems.indexOf(system);
-    if (index >= 0) {
-      // Call system exit
-      this.entities.forEach((entity) => {
-        if (entity.active) {
-          const systems = this.entitySystems[entity.id];
-          if (systems?.includes(system)) {
-            if (system.exit) {
-              this.inject(system);
-              system.exit(entity);
-            }
+  public removeSystem(id: number | System): void {
+    // Handle `id` argument as `System`
+    const system = typeof id === 'number' ? (this.getSystem(id) as System) : id;
+
+    if (!system) {
+      return;
+    }
+
+    // Call system exit
+    this.entities.forEach((entity) => {
+      if (entity.active) {
+        const systems = this.entitySystems[entity.id];
+        if (systems?.includes(system)) {
+          if (system.exit) {
+            this.inject(system);
+            system.exit(entity);
           }
         }
-      });
-
-      this.systems.splice(index, 1);
-
-      if (system.world === this) {
-        system.destroy();
-        system.onRemoved?.();
-        system.world = undefined as any;
-        system.trigger = undefined;
       }
+    });
 
-      // Index entities
-      this.entities.forEach((entity) => this.indexEntity(entity, system));
+    const index = this.systems.indexOf(system);
+    this.systems.splice(index, 1);
+
+    if (system.world === this) {
+      system.destroy();
+      system.onRemoved?.();
+      system.world = undefined as any;
+      system.trigger = undefined;
     }
+
+    // Index entities
+    this.entities.forEach((entity) => this.indexEntity(entity, system));
   }
 
   /**
@@ -301,7 +311,7 @@ export default class World {
           return entity;
         }
 
-        // Allow to query for all entities in the world. -1 = All components
+        // Allow to query for all entities in this world. -1 = All components
         const entityComponentIDs: number[] = [-1].concat(
           Object.keys(entity.components).map((key) => Number.parseInt(key, 10))
         );
@@ -383,7 +393,7 @@ export default class World {
     const systemComponentTypes = system.componentTypes;
 
     for (let a = 0, l = systemComponentTypes.length; a < l; a++) {
-      // Allow a system to receive updates from all entities in the world. -1 = All components
+      // Allow a system to receive updates from all entities in this world. -1 = All components
       let entityComponentIDs: number[] = [-1].concat(
         Object.keys(entity.components).map((key) => Number.parseInt(key, 10))
       );
@@ -548,7 +558,7 @@ export default class World {
   }
 
   /**
-   * Remove all entities and systems
+   * Remove all entities and systems in this world
    */
   public destroy(): void {
     this.entities.forEach((entity) => this.removeEntity(entity));
@@ -566,13 +576,29 @@ export default class World {
   }
 
   /**
+   * Get a system by id
+   *
+   * @param {number} id
+   * @returns {System|undefined}
+   */
+  public getSystem(id: number): System | undefined {
+    return this.systems.find((system) => system.id === id);
+  }
+
+  /**
    * Get all active systems
    *
+   * @param {[string]} state
    * @returns {System[]}
    */
-  public getActiveSystems(): System[] {
-    return this.systems.filter((system) => {
-      system.states.includes(ECSState.Any) || system.states.includes(this.state);
-    });
+  public getActiveSystems(state: string = this.state): System[] {
+    return this.systems.filter((system) => system.states.includes(ECSState.Any) || system.states.includes(state));
+  }
+
+  /**
+   * Log in the console an array of active systems
+   */
+  public logActiveSystems(state?: string): void {
+    console.log('logActiveSystems()', this.getActiveSystems(state));
   }
 }
