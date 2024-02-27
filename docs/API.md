@@ -35,7 +35,7 @@ The very definition of the ECS World.
 
 ##### `static` Entity <a id="world-static-entity"></a>
 
-Static reference to Entity class.
+Static reference to `Entity` class.
 
 ```ts
 static World.Entity: Class<Entity>;
@@ -43,7 +43,7 @@ static World.Entity: Class<Entity>;
 
 ##### `static` Component <a id="world-static-component"></a>
 
-Static reference to Component class.
+Static reference to `Component` class.
 
 ```ts
 static World.Component: Class<Component>;
@@ -51,7 +51,7 @@ static World.Component: Class<Component>;
 
 ##### `static` System <a id="world-static-system"></a>
 
-Static reference to System class.
+Static reference to `System` class.
 
 ```ts
 static World.System: Class<System>;
