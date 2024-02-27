@@ -61,10 +61,10 @@ export default abstract class System {
    * Allow to trigger any event. Systems interested in this event will be notified immediately
    * Injected by ECS at runtime
    *
-   * @param {string} event
-   * @param {any} data
+   * @param {string} event Event key name
+   * @param {any} data     Event data
    */
-  public trigger?: (event: string, data: unknown) => void;
+  public trigger?: (event: string, data: any) => void;
 
   /**
    * Called when:
@@ -72,7 +72,7 @@ export default abstract class System {
    * - This system is added in the world and this world has one or more entities with the characteristics expected by this system
    * - An existing entity in the same world receives a new component at runtime and all of its new components match the standard expected by this system
    *
-   * @param {Entity} entity
+   * @param {Entity} entity Entity matching this system standard
    */
   public enter?(entity: Entity): void;
 
@@ -82,12 +82,12 @@ export default abstract class System {
    * - This system is removed from the world and this world has one or more entities with the characteristics expected by this system
    * - An existing entity in the same world loses a component at runtime and its new component set no longer matches the standard expected by this system
    *
-   * @param {Entity} entity
+   * @param {Entity} entity Entity un-matching this system standard
    */
   public exit?(entity: Entity): void;
 
   /**
-   * Called when this system was added to the world
+   * Called when this system is added to the world
    */
   public onAdded?(): void;
 
@@ -99,26 +99,26 @@ export default abstract class System {
   /**
    * Called when the world state changes
    *
-   * @param {string} newState
-   * @param {string} prevState
+   * @param {string} newState  New world state
+   * @param {string} prevState Previous world state
    */
   public onStateChange?(newState: string, prevState: string): void;
 
   /**
    * Called when an expected feature of this system is added or removed from the entity
    *
-   * @param {Entity} entity
-   * @param {Component} [added]
-   * @param {Component} [removed]
+   * @param {Entity} entity       Updated entity
+   * @param {Component} [added]   Component added to the entity
+   * @param {Component} [removed] Component removed from the entity
    */
   public change?(entity: Entity, added?: Component, removed?: Component): void;
 
   /**
    * Called in updates, limited to the value set by the `frequency` property
    *
-   * @param {number} time
-   * @param {number} delta
-   * @param {Entity} entity
+   * @param {number} time   World current game time
+   * @param {number} delta  Elapsed time since last update
+   * @param {Entity} entity Updated entity
    */
   public update?(time: number, delta: number, entity: Entity): void;
 
@@ -126,9 +126,9 @@ export default abstract class System {
    * Called before updating entities available for this system
    * It is only called when there are entities with the characteristics expected by this system
    *
-   * @param {number} time
-   * @param {number} delta
-   * @param {Entity[]} entities
+   * @param {number} time       World current game time
+   * @param {number} delta      Elapsed time since last update
+   * @param {Entity[]} entities Updated entities
    */
   public beforeUpdateAll?(time: number, delta: number, entities: Entity[]): void;
 
@@ -136,9 +136,9 @@ export default abstract class System {
    * Called after performing update of entities available for this system
    * It is only called when there are entities with the characteristics expected by this system
    *
-   * @param {number} time
-   * @param {number} delta
-   * @param {Entity[]} entities
+   * @param {number} time       World current game time
+   * @param {number} delta      Elapsed time since last update
+   * @param {Entity[]} entities Updated entities
    */
   public afterUpdateAll?(time: number, delta: number, entities: Entity[]): void;
 

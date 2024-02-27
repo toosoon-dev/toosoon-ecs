@@ -83,6 +83,8 @@ World.timeScale: number;
 
 Update the world state.
 
+- `state`: New world state.
+
 ```ts
 World.setState(state: string): void;
 ```
@@ -90,6 +92,8 @@ World.setState(state: string): void;
 ##### addEntity(entity) <a id="world-add-entity-method"></a>
 
 Add an entity to the world.
+
+- `entity`: Entity to add to the world.
 
 ```ts
 World.addEntity(entity: Entity): void;
@@ -99,6 +103,8 @@ World.addEntity(entity: Entity): void;
 
 Remove an entity from the world.
 
+- `id`: Entity (id) to remove from the world.
+
 ```ts
 World.removeEntity(id: number | Entity, dispose?: boolean): void;
 ```
@@ -106,6 +112,8 @@ World.removeEntity(id: number | Entity, dispose?: boolean): void;
 ##### addSystem(system) <a id="world-add-system-method"></a>
 
 Add a system to the world.
+
+- `system`: System to add to the world.
 
 ```ts
 World.addSystem(system: System): void;
@@ -115,6 +123,8 @@ World.addSystem(system: System): void;
 
 Remove a system from the world.
 
+- `id`: System (id) to remove from the world.
+
 ```ts
 World.removeSystem(id: number | System): void;
 ```
@@ -123,6 +133,8 @@ World.removeSystem(id: number | System): void;
 
 Search for all entities that have a specific set of components.
 
+- `componentTypes`: Component types to search for.
+
 ```ts
 World.query(componentTypes: number[]): Iterator<Entity>;
 ```
@@ -130,6 +142,8 @@ World.query(componentTypes: number[]): Iterator<Entity>;
 ##### queryEntitiesByComponent(componentType) <a id="world-query-entities-by-component-method"></a>
 
 Search for all entities that have a specific component.
+
+- `componentType`: Component type to search for.
 
 ```ts
 World.queryEntitiesByComponent(componentType: number): Entity[];
@@ -155,6 +169,8 @@ World.destroy(): void;
 
 Get an entity by id.
 
+- `id`: Entity id.
+
 ```ts
 World.getEntity(id: number): Entity | undefined;
 ```
@@ -162,6 +178,8 @@ World.getEntity(id: number): Entity | undefined;
 ##### getSystem(id) <a id="world-get-system-method"></a>
 
 Get a system by id.
+
+- `id`: System id.
 
 ```ts
 World.getSystem(id: number): System | undefined;
@@ -171,6 +189,8 @@ World.getSystem(id: number): System | undefined;
 
 Get all active systems, or matching a specified `state`.
 
+- `[state]`: State to match (default is the world current `state`).
+
 ```ts
 World.getActiveSystems(state?: string): System[];
 ```
@@ -178,6 +198,8 @@ World.getActiveSystems(state?: string): System[];
 ##### logActiveSystems() <a id="world-log-active-systems-method"></a>
 
 Log in the console an array of active systems, or matching a specified `state`.
+
+- `[state]`: State to match.
 
 ```ts
 World.logActiveSystems(state?: string): void;
@@ -231,6 +253,8 @@ Entity.components: { [key: number]: Component[] };
 
 Add a component to the entity.
 
+- `component`: Component to add to the entity.
+
 ```ts
 Entity.add(component: Component): void;
 ```
@@ -238,6 +262,8 @@ Entity.add(component: Component): void;
 ##### remove(component) <a id="entity-remove-method"></a>
 
 Remove a component from the entity.
+
+- `component`: Component to remove from the entity.
 
 ```ts
 Entity.remove(component: Component): void;
@@ -263,6 +289,8 @@ Entity.onRemoved?(): void;
 
 Allow interested parties to receive information when the entity's component list is updated.
 
+- `susbcription`: Callback to call when the entity's component list is updated.
+
 ```ts
 Entity.subscribe(susbcription: Function): Function;
 ```
@@ -270,6 +298,8 @@ Entity.subscribe(susbcription: Function): Function;
 ##### getComponents(type) <a id="entity-get-components-method"></a>
 
 Get all components with a specified type.
+
+- `type`: Unique component type identifier.
 
 ```ts
 Entity.getComponents(type: number): Component[];
@@ -371,11 +401,22 @@ System.world!: World;
 
 Allow to trigger any event. Systems interested in this event will be notified immediately.
 
+- `event`: Event key name.
+- `data`: Event data.
+
 ```ts
 System.trigger?: (event: string, data: unknown) => void;
 ```
 
 ##### enter(entity) <a id="system-enter-method"></a>
+
+Called when:
+
+1. An entity with the characteristics (components) expected by the system is added in the world.
+2. The system is added in the world and this world has one or more entities with the characteristics expected by the system.
+3. An existing entity in the same world receives a new component at runtime and all of its new components match the standard expected by the system.
+
+- `entity`: Entity matching the system standard.
 
 ```ts
 System.enter?(entity: Entity): void;
@@ -383,11 +424,21 @@ System.enter?(entity: Entity): void;
 
 ##### exit(entity) <a id="system-exit-method"></a>
 
+Called when:
+
+1.  An entity with the characteristics (components) expected by the system is removed from the world.
+2.  The system is removed from the world and this world has one or more entities with the characteristics expected by this system.
+3.  An existing entity in the same world loses a component at runtime and its new component set no longer matches the standard expected by the system.
+
+- `entity`: Entity un-matching the system standard.
+
 ```ts
 System.exit?(entity: Entity): void;
 ```
 
 ##### onAdded() <a id="system-on-added-method"></a>
+
+Called when the system is added to the world.
 
 ```ts
 System.onAdded?(): void;
@@ -395,11 +446,18 @@ System.onAdded?(): void;
 
 ##### onRemoved() <a id="system-on-removed-method"></a>
 
+Called when the system is removed from the world.
+
 ```ts
 System.onRemoved?(): void;
 ```
 
 ##### onStateChange(newState, prevState) <a id="system-on-state-change-method"></a>
+
+Called when the world state changes.
+
+- `newState`: New world state.
+- `prevState`: Previous world state.
 
 ```ts
 System.onStateChange?(newState: string, prevState: string): void;
@@ -407,11 +465,23 @@ System.onStateChange?(newState: string, prevState: string): void;
 
 ##### change(entity) <a id="system-change-method"></a>
 
+Called when an expected feature of the system is added or removed from the entity.
+
+- `entity`: Updated entity.
+- `[added]`: Component added to the entity.
+- `[removed]`: Component removed from the entity.
+
 ```ts
 System.change?(entity: Entity, added?: Component, removed?: Component): void;
 ```
 
 ##### update(time, delta, entity) <a id="system-update-method"></a>
+
+Called in updates, limited to the value set by the `frequency` property.
+
+- `time`: World current game time.
+- `delta`: Elapsed time since last update.
+- `entity`: Updated entity.
 
 ```ts
 System.update?(time: number, delta: number, entity: Entity): void;
@@ -419,11 +489,27 @@ System.update?(time: number, delta: number, entity: Entity): void;
 
 ##### beforeUpdateAll(time, delta, entities) <a id="system-before-update-all-method"></a>
 
+Called before updating entities available for the system.
+
+> It is only called when there are entities with the characteristics expected by the system.
+
+- `time`: World current game time.
+- `delta`: Elapsed time since last update.
+- `entities`: Updated entities.
+
 ```ts
 System.beforeUpdateAll?(time: number, delta: number, entities: Entity[]): void;
 ```
 
 ##### afterUpdateAll(time, delta, entities) <a id="system-after-update-all-method"></a>
+
+Called after performing update of entities available for the system.
+
+> It is only called when there are entities with the characteristics expected by the system.
+
+- `time`: World current game time.
+- `delta`: Elapsed time since last update.
+- `entities`: Updated entities.
 
 ```ts
 System.afterUpdateAll?(time: number, delta: number, entities: Entity[]): void;
@@ -509,6 +595,8 @@ Component<T>.attributes: any;
 
 Return all instances of the component from entity.
 
+- `entity`: Entity to get the components from.
+
 ```ts
 static Component<T>.allFrom(entity: Entity): Array<Component<T>>;
 ```
@@ -516,6 +604,8 @@ static Component<T>.allFrom(entity: Entity): Array<Component<T>>;
 ##### `static` oneFrom(entity) <a id="#component-static-one-from-method"></a>
 
 Return the first instance of the component from entity.
+
+- `entity`: Entity to get the component from.
 
 ```ts
 static Component<T>.oneFrom(entity: Entity): Component<T>;

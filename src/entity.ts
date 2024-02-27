@@ -47,7 +47,7 @@ export default abstract class Entity {
   /**
    * Add a component to this entity
    *
-   * @param {Component} component
+   * @param {Component} component Component to add to this entity
    */
   public add(component: Component): void {
     const type = component.type;
@@ -68,7 +68,7 @@ export default abstract class Entity {
   /**
    * Remove a component from this entity
    *
-   * @param {Component} component
+   * @param {Component} component Component to remove from this entity
    */
   public remove(component: Component): void {
     const type = component.type;
@@ -92,7 +92,7 @@ export default abstract class Entity {
   /**
    * Allow interested parties to receive information when this entity's component list is updated
    *
-   * @param {Susbcription} susbcription
+   * @param {Susbcription} susbcription Callback to call when this entity's component list is updated
    * @returns {Function}
    */
   public subscribe(susbcription: Susbcription): () => Entity {
@@ -110,7 +110,7 @@ export default abstract class Entity {
   /**
    * Get all components with a specified type
    *
-   * @param {number} type
+   * @param {number} type Unique component type identifier
    * @returns {Component[]}
    */
   public getComponents(type: number): Component[] {

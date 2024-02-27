@@ -85,7 +85,7 @@ export default abstract class Component<T = any> {
       /**
        * Static method returning all instances of this component from entity
        *
-       * @param {Entity} entity
+       * @param {Entity} entity Entity to get the components from
        * @returns {Component[]}
        */
       static allFrom(entity: Entity): CustomComponent[] {
@@ -95,7 +95,7 @@ export default abstract class Component<T = any> {
       /**
        * Static method returning the first instance of this component from entity
        *
-       * @param {Entity} entity
+       * @param {Entity} entity Entity to get the component from
        * @returns {Component}
        */
       static oneFrom(entity: Entity): CustomComponent {

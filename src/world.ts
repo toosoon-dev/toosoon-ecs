@@ -105,10 +105,10 @@ export default class World {
   /**
    * Injection for the system trigger method
    *
-   * @param {string} event
-   * @param {any} data
+   * @param {string} event Event key name
+   * @param {any} data     Event data
    */
-  private systemTrigger = (event: string, data: unknown): void => {
+  private systemTrigger = (event: string, data: any): void => {
     this.systems.forEach((system) => {
       const listeners: { [event: string]: Listener[] } = system.listeners;
       if (listeners.hasOwnProperty(event) && listeners[event].length > 0) {
@@ -122,7 +122,7 @@ export default class World {
   /**
    * Update this world state
    *
-   * @param {string} state
+   * @param {string} state New world state
    */
   public setState(state: string): void {
     const oldState = this.state;
@@ -133,7 +133,7 @@ export default class World {
   /**
    * Add an entity to this world
    *
-   * @param {Entity} entity
+   * @param {Entity} entity Entity to add to this world
    */
   public addEntity(entity: Entity): void {
     if (!entity || this.entities.includes(entity)) {
@@ -164,7 +164,7 @@ export default class World {
   /**
    * Remove an entity from this world
    *
-   * @param {number|Entity} id
+   * @param {number|Entity} id Entity (id) to remove from this world
    * @param {boolean} [dispose=true]
    */
   public removeEntity(id: number | Entity, dispose: boolean = true): void {
@@ -222,7 +222,7 @@ export default class World {
   /**
    * Add a system to this world
    *
-   * @param {System} system
+   * @param {System} system System to add to this world
    */
   public addSystem(system: System): void {
     if (this.systems.includes(system)) {
@@ -256,7 +256,7 @@ export default class World {
   /**
    * Remove a system from this world
    *
-   * @param {number|System} id
+   * @param {number|System} id System (id) to remove from this world
    */
   public removeSystem(id: number | System): void {
     // Handle `id` argument as `System`
@@ -296,7 +296,7 @@ export default class World {
   /**
    * Search for all entities that have a specific set of components
    *
-   * @param {number[]} componentTypes
+   * @param {number[]} componentTypes Component types to search for
    * @returns {Iterator}
    */
   public query(componentTypes: number[]): Iterator<Entity> {
@@ -331,7 +331,7 @@ export default class World {
   /**
    * Search for all entities that have a specific component
    *
-   * @param {number} componentType
+   * @param {number} componentType Component type to search for
    * @returns {Entity[]}
    */
   public queryEntitiesByComponent(componentType: number): Entity[] {
@@ -359,11 +359,10 @@ export default class World {
 
   /**
    * Inject the execution context into the system
-   *
    * A system can exist on several worlds at the same time, ECS ensures that global methods will always reference the
-   * currently running world.
+   * currently running world
    *
-   * @param {System} system
+   * @param {System} system System to inject in this world
    * @returns {System}
    */
   private inject(system: System): System {
@@ -375,8 +374,8 @@ export default class World {
   /**
    * Index an entity for a specific system
    *
-   * @param {Entity} entity
-   * @param {System} system
+   * @param {Entity} entity Entity to index
+   * @param {System} system System to index
    */
   private indexEntitySystem = (entity: Entity, system: System): void => {
     const index = this.entitySystems[entity.id].indexOf(system);
@@ -430,8 +429,8 @@ export default class World {
   /**
    * Index an entity
    *
-   * @param {Entity} entity
-   * @param {System} [system]
+   * @param {Entity} entity   Entity to index
+   * @param {System} [system] System to index
    */
   private indexEntity(entity: Entity, system?: System): void {
     if (!this.entitySystems.hasOwnProperty(entity.id)) {
@@ -450,9 +449,9 @@ export default class World {
   /**
    * Call the `change` method of the systems in this world when an entity receives or loses components
    *
-   * @param {Entity} entity
-   * @param {Component} [added]
-   * @param {Component} [removed]
+   * @param {Entity} entity       Updated entity
+   * @param {Component} [added]   Component added to the entity
+   * @param {Component} [removed] Component removed from the entity
    */
   private onEntityUpdate(entity: Entity, added?: Component, removed?: Component): void {
     const systems = this.entitySystems[entity.id];
@@ -568,7 +567,7 @@ export default class World {
   /**
    * Get an entity by id
    *
-   * @param {number} id
+   * @param {number} id Entity id
    * @returns {Entity|undefined}
    */
   public getEntity(id: number): Entity | undefined {
@@ -578,7 +577,7 @@ export default class World {
   /**
    * Get a system by id
    *
-   * @param {number} id
+   * @param {number} id System id
    * @returns {System|undefined}
    */
   public getSystem(id: number): System | undefined {
@@ -588,7 +587,7 @@ export default class World {
   /**
    * Get all active systems
    *
-   * @param {[string]} state
+   * @param {[string]} state State to match
    * @returns {System[]}
    */
   public getActiveSystems(state: string = this.state): System[] {
