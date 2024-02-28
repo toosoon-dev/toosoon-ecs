@@ -1,4 +1,4 @@
-import now from 'toosoon-utils/now';
+import { now } from 'toosoon-utils/functions';
 
 import Component from './component';
 import Entity from './entity';
