@@ -43,27 +43,27 @@ export default class World {
   /**
    * Index the systems that must be run for each entity
    */
-  private entitySystems: { [key: number]: System[] } = {};
+  private entitySystems: Record<number, System[]> = {};
 
   /**
    * Record the last instant a system was run in this world for an entity, using real time
    */
-  private entitySystemLastUpdate: { [key: number]: { [key: number]: number } } = {};
+  private entitySystemLastUpdate: Record<number, Record<number, number>> = {};
 
   /**
    * Record the last instant a system was run in this world for an entity, using game time
    */
-  private entitySystemLastUpdateGame: { [key: number]: { [key: number]: number } } = {};
+  private entitySystemLastUpdateGame: Record<number, Record<number, number>> = {};
 
   /**
    * Save subscriptions made to entities
    */
-  private entitySubscription: { [key: number]: () => void } = {};
+  private entitySubscription: Record<number, () => void> = {};
 
   /**
    * Save queries
    */
-  private queryCache: { [key: number]: Entity[] } = {};
+  private queryCache: Record<number, Entity[]> = {};
 
   /**
    * World state determining which systems are updated
@@ -110,7 +110,7 @@ export default class World {
    */
   private systemTrigger = (event: string, data: any): void => {
     this.systems.forEach((system) => {
-      const listeners: { [event: string]: Listener[] } = system.listeners;
+      const listeners: Record<string, Listener[]> = system.listeners;
       if (listeners.hasOwnProperty(event) && listeners[event].length > 0) {
         this.inject(system);
         const entitiesIterator = this.query(system.componentTypes);
@@ -496,7 +496,7 @@ export default class World {
     this.lastUpdate = time;
 
     // Save systems & entities to update
-    const updated: { [key: string]: { system: System; delta: number; entities: Entity[] } } = {};
+    const updated: Record<string, { system: System; delta: number; entities: Entity[] }> = {};
 
     this.entities.forEach((entity) => {
       if (!entity.active) {

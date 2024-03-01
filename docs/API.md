@@ -212,7 +212,7 @@ Representation of an entity in ECS.
 - new Entity()
   - `static` [.id](#entity-static-id): `number`
   - [.id](#entity-id): `number`
-  - [.components](#entity-components): `{ [key: number]: Component[] }`
+  - [.components](#entity-components): `Record<number, Component[]>`
   - [.active](#entity-entity): `boolean`
   - [.add(component)](#entity-add-method)
   - [.remove(component)](#entity-remove-method)
@@ -244,7 +244,7 @@ Entity.id: readonly number;
 List of components attached to the entity.
 
 ```ts
-Entity.components: { [key: number]: Component[] };
+Entity.components: Record<number, Component[]>;
 ```
 
 ### Methods
@@ -315,7 +315,7 @@ Represent the logic that transforms component data of an entity from its current
   - [.componentTypes](#system-component-types): `number[]`
   - [.states](#system-states): `string[]`
   - [.frequency](#system-frequency): `number`
-  - [.listeners](#system-listeners): `{ [event: string]: Function[] }`
+  - [.listeners](#system-listeners): `Record<string, Function[]>`
   - [.world](#system-world): `World`
   - [.trigger?(event, data)](#system-trigger-method)
   - [.enter?(entity)](#system-enter-method)
@@ -384,7 +384,7 @@ System.frequency: readonly number;
 <!--  -->
 
 ```ts
-System.listeners: readonly { [event: string]: Function[] };
+System.listeners: readonly Record<string, Function[]>;
 ```
 
 ##### world <a id="system-world"></a>

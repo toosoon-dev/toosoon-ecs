@@ -21,7 +21,7 @@ export default abstract class Entity {
   /**
    * List of components attached to this entity
    */
-  public components: { [key: number]: Component[] } = {};
+  public components: Record<number, Component[]> = {};
 
   /**
    * Array of subscriptions attached to this entity activity

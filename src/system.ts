@@ -41,7 +41,7 @@ export default abstract class System {
    */
   readonly frequency: number;
 
-  readonly listeners: { [event: string]: Listener[] } = {};
+  readonly listeners: Record<string, Listener[]> = {};
 
   /**
    * Reference to the ECS World, changed at runtime during interactions
