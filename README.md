@@ -397,4 +397,4 @@ See full documentation [here](./docs/API.md).
 
 ## License
 
-MIT License, see [LICENSE](https://github.com/toosoon-dev/toosoon-ecs/tree/master/LICENSE) for details
+MIT License, see [LICENSE](https://github.com/toosoon-dev/toosoon-ecs/tree/master/LICENSE) for details.

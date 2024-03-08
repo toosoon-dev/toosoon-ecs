@@ -1,6 +1,6 @@
 {
   "name": "toosoon-ecs",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Library providing Entity-Component-System (ECS) classes",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -30,6 +30,6 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "toosoon-utils": "^1.2.0"
+    "toosoon-utils": "^1.5.0"
   }
 }
