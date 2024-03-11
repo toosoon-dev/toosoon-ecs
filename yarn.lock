@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-toosoon-utils@^1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/toosoon-utils/-/toosoon-utils-1.5.0.tgz#fb047f435dc0cadcb12d760160872b01cc7a5488"
-  integrity sha512-DQ/Xu3MexlC32nM16avx6wYqYDr61qQxYUp+CMp+cSImK1mWK59GyBv8SFqOSr7zOM6+pEz29PxmMZXAJ2Y34Q==
+toosoon-utils@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/toosoon-utils/-/toosoon-utils-2.0.0.tgz#c810e9cf8c718b3d6360303b1424a7743f6b2029"
+  integrity sha512-4d2WSI2Mmh4Hs0lRVVllKupusJ6RBGzMx25jgY7ZQl27aoQ6YoumN1Rmt0XkVXpaTjQUF8b3orZs+ESrji24UQ==
 
 typescript@^5.3.3:
   version "5.3.3"
