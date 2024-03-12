@@ -1,6 +1,6 @@
 {
   "name": "toosoon-ecs",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Library providing Entity-Component-System (ECS) classes",
   "type": "module",
   "engines": {
@@ -31,9 +31,9 @@
   },
   "homepage": "https://github.com/toosoon-dev/toosoon-ecs#readme",
   "dependencies": {
-    "toosoon-utils": "^2.1.0"
+    "toosoon-utils": "^2.2.0"
   },
-  "peerDependencies": {
-    "typescript": "5.x"
+  "devDependencies": {
+    "typescript": "^5.4.2"
   }
 }
