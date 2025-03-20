@@ -1,5 +1,5 @@
-import Component from './component';
-import { Susbcription } from './types';
+import type Component from './component';
+import type { Susbcription } from './types';
 
 /**
  * Representation of an entity in ECS
@@ -26,7 +26,7 @@ export default abstract class Entity {
   /**
    * Array of subscriptions attached to this entity activity
    */
-  private subscriptions: Susbcription[] = [];
+  private _subscriptions: Susbcription[] = [];
 
   public active: boolean = true;
 
@@ -62,7 +62,7 @@ export default abstract class Entity {
 
     this.components[type].push(component);
 
-    this.subscriptions.forEach((subscription) => subscription(this, component, undefined));
+    this._subscriptions.forEach((subscription) => subscription(this, component, undefined));
   }
 
   /**
@@ -85,7 +85,7 @@ export default abstract class Entity {
         delete this.components[type];
       }
 
-      this.subscriptions.forEach((subscription) => subscription(this, undefined, component));
+      this._subscriptions.forEach((subscription) => subscription(this, undefined, component));
     }
   }
 
@@ -96,12 +96,12 @@ export default abstract class Entity {
    * @returns {Function}
    */
   public subscribe(susbcription: Susbcription): () => Entity {
-    this.subscriptions.push(susbcription);
+    this._subscriptions.push(susbcription);
 
     return () => {
-      const index = this.subscriptions.indexOf(susbcription);
+      const index = this._subscriptions.indexOf(susbcription);
       if (index >= 0) {
-        this.subscriptions.splice(index, 1);
+        this._subscriptions.splice(index, 1);
       }
       return this;
     };

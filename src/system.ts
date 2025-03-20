@@ -1,10 +1,10 @@
-// import { Gui } from 'toosoon-gui';
+import type Component from './component';
+import type Entity from './entity';
+import type World from './world';
 
-import Component from './component';
-import Entity from './entity';
-import { ECSState, Listener } from './types';
 import { Iterator } from './utils';
-import World from './world';
+import { ECSState } from './types';
+import type { Listener } from './types';
 
 /**
  * Represent the logic that transforms component data of an entity from its current state to its next state
@@ -212,7 +212,7 @@ export default abstract class System {
    * @param {number[]} componentTypes
    * @returns {Iterator}
    */
-  protected query(componentTypes: number[]): Iterator<Entity> {
+  protected query(componentTypes: []): Iterator<Entity> {
     return this.world.query(componentTypes);
   }
 

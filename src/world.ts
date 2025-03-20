@@ -3,8 +3,10 @@ import { now } from 'toosoon-utils/functions';
 import Component from './component';
 import Entity from './entity';
 import System from './system';
-import { ECSState, Listener } from './types';
+
 import { Iterator } from './utils';
+import { ECSState } from './types';
+import type { Listener } from './types';
 
 /**
  * The very definition of the ECS World
