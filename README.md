@@ -4,6 +4,8 @@ Library providing Entity-Component-System (ECS) classes.
 
 **Credits**: [ecs-lib](https://github.com/nidorx/ecs-lib)
 
+[![NPM](https://nodei.co/npm/toosoon-ecs.png)](https://nodei.co/npm/toosoon-ecs/)
+
 ## Installation
 
 Yarn:
