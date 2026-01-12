@@ -1,6 +1,6 @@
 {
   "name": "toosoon-ecs",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Library providing Entity-Component-System (ECS) classes",
   "type": "module",
   "engines": {
