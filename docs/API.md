@@ -1,63 +1,63 @@
 # ECS API
 
-## World
+## World <a id="world"></a>
 
 The very definition of the ECS World.
 
-- [new World()](#world-contructor)
-  - `static` [.Entity](#world-static-entity): `Class<Entity>`
-  - `static` [.Component](#world-static-component): `Class<Component>`
-  - `static` [.System](#world-static-system): `Class<System>`
+- [new World(id?, systems?)](#world-contructor)
+  - `static` [.Entity](#world-static-entity): `typeof Entity`
+  - `static` [.Component](#world-static-component): `typeof Component`
+  - `static` [.System](#world-static-system): `typeof System`
   - [.id](#world-id): `string`
   - [.timeScale](#world-time-scale): `number`
-  - [.setState(state)](#world-set-state-method)
-  - [.addEntity(entity)](#world-add-entity-method)
-  - [.removeEntity(id)](#world-remove-entity-method)
-  - [.addSystem(system)](#world-add-system-method)
-  - [.removeSystem(id)](#world-remove-system-method)
+  - [.setState(state)](#world-set-state-method): `void`
+  - [.addEntity(entity)](#world-add-entity-method): `void`
+  - [.removeEntity(id, dispose?)](#world-remove-entity-method): `void`
+  - [.addSystem(system)](#world-add-system-method): `void`
+  - [.removeSystem(id)](#world-remove-system-method): `void`
   - [.query(componentTypes)](#world-query-method): `Iterator`
   - [.queryEntitiesByComponent(componentType)](#world-query-entities-by-component-method): `Entity[]`
-  - [.update()](#world-update-method)
-  - [.destroy()](#world-destroy-method)
+  - [.update()](#world-update-method): `void`
+  - [.destroy()](#world-destroy-method): `void`
   - [.getEntity(id)](#world-get-entity-method): `Entity | undefined`
   - [.getSystem(id)](#world-get-system-method): `System | undefined`
   - [.getActiveSystems()](#world-get-system-method): `System[]`
-  - [.logActiveSystems()](#world-log-active-systems-method)
+  - [.logActiveSystems()](#world-log-active-systems-method): `void`
 
 ### Contructor <a id="world-contructor"></a>
 
 | Parameter | Type       | Default | Description                          |
 | --------- | ---------- | ------- | ------------------------------------ |
-| id        | `string`   | `''`    | The world unique identifier.         |
-| systems   | `System[]` | `[]`    | Initial systems to add to the world. |
+| [id]      | `string`   | `''`    | The world unique identifier.         |
+| [systems] | `System[]` | `[]`    | Initial systems to add to the world. |
 
 ### Properties
 
-##### `static` Entity <a id="world-static-entity"></a>
+##### `static` World.`Entity` <a id="world-static-entity"></a>
 
-Static reference to `Entity` class.
-
-```ts
-static World.Entity: Class<Entity>;
-```
-
-##### `static` Component <a id="world-static-component"></a>
-
-Static reference to `Component` class.
+Static reference to [`Entity`](#entity) class.
 
 ```ts
-static World.Component: Class<Component>;
+static World.Entity: typeof Entity;
 ```
 
-##### `static` System <a id="world-static-system"></a>
+##### `static` World.`Component` <a id="world-static-component"></a>
 
-Static reference to `System` class.
+Static reference to [`Component`](#component) class.
 
 ```ts
-static World.System: Class<System>;
+static World.Component: typeof Component;
 ```
 
-##### id <a id="world-id"></a>
+##### `static` World.`System` <a id="world-static-system"></a>
+
+Static reference to [`System`](#system) class.
+
+```ts
+static World.System: typeof System;
+```
+
+##### .`id` <a id="world-id"></a>
 
 The world unique identifier.
 
@@ -65,11 +65,11 @@ The world unique identifier.
 World.id: readonly string;
 ```
 
-##### timeScale <a id="world-time-scale"></a>
+##### .`timeScale` <a id="world-time-scale"></a>
 
 Allow you to apply slow motion effect on systems.
-When timeScale is 1, the timestamp and delta parameters received by the systems are consistent with the actual timestamp.
-When timeScale is 0.5, the values received by systems will be half of the actual value.
+When `timeScale` is 1, the timestamp and delta parameters received by the systems are consistent with the actual timestamp.
+When `timeScale` is 0.5, the values received by systems will be half of the actual value.
 
 > ATTENTION! The systems continue to be invoked obeying their normal frequencies, what changes is only the values received in the timestamp and delta parameters.
 
@@ -79,7 +79,7 @@ World.timeScale: number;
 
 ### Methods
 
-##### setState(state) <a id="world-set-state-method"></a>
+##### .`setState(state)` <a id="world-set-state-method"></a>
 
 Update the world state.
 
@@ -89,7 +89,7 @@ Update the world state.
 World.setState(state: string): void;
 ```
 
-##### addEntity(entity) <a id="world-add-entity-method"></a>
+##### .`addEntity(entity)` <a id="world-add-entity-method"></a>
 
 Add an entity to the world.
 
@@ -99,17 +99,18 @@ Add an entity to the world.
 World.addEntity(entity: Entity): void;
 ```
 
-##### removeEntity(id) <a id="world-remove-entity-method"></a>
+##### .`removeEntity(id, dispose?)` <a id="world-remove-entity-method"></a>
 
 Remove an entity from the world.
 
 - `id`: Entity (id) to remove from the world.
+- `[dispose=true]`
 
 ```ts
 World.removeEntity(id: number | Entity, dispose?: boolean): void;
 ```
 
-##### addSystem(system) <a id="world-add-system-method"></a>
+##### .`addSystem(system)` <a id="world-add-system-method"></a>
 
 Add a system to the world.
 
@@ -119,7 +120,7 @@ Add a system to the world.
 World.addSystem(system: System): void;
 ```
 
-##### removeSystem(id) <a id="world-remove-system-method"></a>
+##### .`removeSystem(id)` <a id="world-remove-system-method"></a>
 
 Remove a system from the world.
 
@@ -129,7 +130,7 @@ Remove a system from the world.
 World.removeSystem(id: number | System): void;
 ```
 
-##### query(componentTypes) <a id="world-query-method"></a>
+##### .`query(componentTypes)` <a id="world-query-method"></a>
 
 Search for all entities that have a specific set of components.
 
@@ -139,7 +140,7 @@ Search for all entities that have a specific set of components.
 World.query(componentTypes: number[]): Iterator<Entity>;
 ```
 
-##### queryEntitiesByComponent(componentType) <a id="world-query-entities-by-component-method"></a>
+##### .`queryEntitiesByComponent(componentType)` <a id="world-query-entities-by-component-method"></a>
 
 Search for all entities that have a specific component.
 
@@ -149,7 +150,7 @@ Search for all entities that have a specific component.
 World.queryEntitiesByComponent(componentType: number): Entity[];
 ```
 
-##### update() <a id="world-update-method"></a>
+##### .`update()` <a id="world-update-method"></a>
 
 Call the `update` method of the systems in the world.
 
@@ -157,7 +158,7 @@ Call the `update` method of the systems in the world.
 World.update(): void;
 ```
 
-##### destroy() <a id="world-destroy-method"></a>
+##### .`destroy()` <a id="world-destroy-method"></a>
 
 Remove all entities and systems in the world.
 
@@ -165,7 +166,7 @@ Remove all entities and systems in the world.
 World.destroy(): void;
 ```
 
-##### getEntity(id) <a id="world-get-entity-method"></a>
+##### .`getEntity(id)` <a id="world-get-entity-method"></a>
 
 Get an entity by id.
 
@@ -175,7 +176,7 @@ Get an entity by id.
 World.getEntity(id: number): Entity | undefined;
 ```
 
-##### getSystem(id) <a id="world-get-system-method"></a>
+##### .`getSystem(id)` <a id="world-get-system-method"></a>
 
 Get a system by id.
 
@@ -185,7 +186,7 @@ Get a system by id.
 World.getSystem(id: number): System | undefined;
 ```
 
-##### getActiveSystems() <a id="world-get-active-systems-method"></a>
+##### .`getActiveSystems(state?)` <a id="world-get-active-systems-method"></a>
 
 Get all active systems, or matching a specified `state`.
 
@@ -195,7 +196,7 @@ Get all active systems, or matching a specified `state`.
 World.getActiveSystems(state?: string): System[];
 ```
 
-##### logActiveSystems() <a id="world-log-active-systems-method"></a>
+##### .`logActiveSystems()` <a id="world-log-active-systems-method"></a>
 
 Log in the console an array of active systems, or matching a specified `state`.
 
@@ -205,7 +206,7 @@ Log in the console an array of active systems, or matching a specified `state`.
 World.logActiveSystems(state?: string): void;
 ```
 
-## Entity
+## Entity <a id="entity"></a>
 
 Representation of an entity in ECS.
 
@@ -214,16 +215,16 @@ Representation of an entity in ECS.
   - [.id](#entity-id): `number`
   - [.components](#entity-components): `Record<number, Component[]>`
   - [.active](#entity-entity): `boolean`
-  - [.add(component)](#entity-add-method)
-  - [.remove(component)](#entity-remove-method)
-  - [.onAdded?()](#entity-on-added-method)
-  - [.onRemoved?()](#entity-on-removed-method)
+  - [.add(component)](#entity-add-method): `void`
+  - [.remove(component)](#entity-remove-method): `void`
+  - [.onAdded?()](#entity-on-added-method): `void`
+  - [.onRemoved?()](#entity-on-removed-method): `void`
   - [.subscribe(susbcription)](#entity-subscribe-method): `Function`
   - [.getComponents(type)](#entity-get-components-method): `Component[]`
 
 ### Properties
 
-##### `static` id <a id="entity-static-id"></a>
+##### `static` Entity.`id` <a id="entity-static-id"></a>
 
 Static reference to Entity id.
 
@@ -231,7 +232,7 @@ Static reference to Entity id.
 static Entity.id: number;
 ```
 
-##### id <a id="entity-id"></a>
+##### .`id` <a id="entity-id"></a>
 
 Unique identifier of an instance of the entity.
 
@@ -239,7 +240,7 @@ Unique identifier of an instance of the entity.
 Entity.id: readonly number;
 ```
 
-##### components <a id="entity-components"></a>
+##### .`components` <a id="entity-components"></a>
 
 List of components attached to the entity.
 
@@ -247,9 +248,15 @@ List of components attached to the entity.
 Entity.components: Record<number, Component[]>;
 ```
 
+##### .`active` <a id="entity-active"></a>
+
+```ts
+Entity.active: boolean;
+```
+
 ### Methods
 
-##### add(component) <a id="entity-add-method"></a>
+##### .`add(component)` <a id="entity-add-method"></a>
 
 Add a component to the entity.
 
@@ -259,7 +266,7 @@ Add a component to the entity.
 Entity.add(component: Component): void;
 ```
 
-##### remove(component) <a id="entity-remove-method"></a>
+##### .`remove(component)` <a id="entity-remove-method"></a>
 
 Remove a component from the entity.
 
@@ -269,7 +276,7 @@ Remove a component from the entity.
 Entity.remove(component: Component): void;
 ```
 
-##### onAdded?() <a id="entity-on-added-method"></a>
+##### .`onAdded?()` <a id="entity-on-added-method"></a>
 
 Called when the entity is added to the world.
 
@@ -277,7 +284,7 @@ Called when the entity is added to the world.
 Entity.onAdded?(): void;
 ```
 
-##### onRemoved?() <a id="entity-on-removed-method"></a>
+##### .`onRemoved?()` <a id="entity-on-removed-method"></a>
 
 Called when the entity is removed from the world.
 
@@ -285,7 +292,7 @@ Called when the entity is removed from the world.
 Entity.onRemoved?(): void;
 ```
 
-##### subscribe(susbcription) <a id="entity-subscribe-method"></a>
+##### .`subscribe(susbcription)` <a id="entity-subscribe-method"></a>
 
 Allow interested parties to receive information when the entity's component list is updated.
 
@@ -295,7 +302,7 @@ Allow interested parties to receive information when the entity's component list
 Entity.subscribe(susbcription: Function): Function;
 ```
 
-##### getComponents(type) <a id="entity-get-components-method"></a>
+##### .`getComponents(type)` <a id="entity-get-components-method"></a>
 
 Get all components with a specified type.
 
@@ -305,11 +312,11 @@ Get all components with a specified type.
 Entity.getComponents(type: number): Component[];
 ```
 
-## System
+## System <a id="system"></a>
 
 Represent the logic that transforms component data of an entity from its current state to its next state. A system runs on entities that have a specific set of component types.
 
-- [new System([componentTypes])](#system-contructor)
+- [new System(componentTypes, states?, frequency?)](#system-contructor)
   - `static` [.id](#system-static-id): `number`
   - [.id](#system-id): `number`
   - [.componentTypes](#system-component-types): `number[]`
@@ -317,29 +324,29 @@ Represent the logic that transforms component data of an entity from its current
   - [.frequency](#system-frequency): `number`
   - [.listeners](#system-listeners): `Record<string, Function[]>`
   - [.world](#system-world): `World`
-  - [.trigger?(event, data)](#system-trigger-method)
-  - [.enter?(entity)](#system-enter-method)
-  - [.exit?(entity)](#system-exit-method)
-  - [.onAdded?()](#system-on-added-method)
-  - [.onRemoved?()](#system-on-removed-method)
-  - [.onStateChange?(newState, prevState)](#system-on-state-change-method)
-  - [.change?(entity)](#system-change-method)
-  - [.update?(time, delta, entity)](#system-update-method)
-  - [.beforeUpdateAll?(time, delta, entities)](#system-before-update-all-method)
-  - [.afterUpdateAll?(time, delta, entities)](#after-before-update-all-method)
-  - [.destroy()](#system-destroy-method)
+  - [.trigger?(event, data)](#system-trigger-method): `void`
+  - [.enter?(entity)](#system-enter-method): `void`
+  - [.exit?(entity)](#system-exit-method): `void`
+  - [.onAdded?()](#system-on-added-method): `void`
+  - [.onRemoved?()](#system-on-removed-method): `void`
+  - [.onStateChange?(newState, previousState)](#system-on-state-change-method): `void`
+  - [.change?(entity, added?, removed?)](#system-change-method): `void`
+  - [.update?(time, delta, entity)](#system-update-method): `void`
+  - [.beforeUpdateAll?(time, delta, entities)](#system-before-update-all-method): `void`
+  - [.afterUpdateAll?(time, delta, entities)](#after-before-update-all-method): `void`
+  - [.destroy()](#system-destroy-method): `void`
 
 ### Contructor <a id="system-contructor"></a>
 
 | Parameter      | Type       | Default   | Description                                                                                |
 | -------------- | ---------- | --------- | ------------------------------------------------------------------------------------------ |
 | componentTypes | `number[]` |           | IDs of the types of components the system expects the entity to have before it can act on. |
-| states         | `string[]` | `['Any']` | An array of states that allow the `update` method to be called.                            |
-| frequency      | `number`   | `0`       | The maximum times per second this system should be updated.                                |
+| [states]       | `string[]` | `['Any']` | An array of states that allow the `update` method to be called.                            |
+| [frequency]    | `number`   | `0`       | The maximum times per second this system should be updated.                                |
 
 ### Properties
 
-##### `static` id <a id="system-static-id"></a>
+##### `static` System.`id` <a id="system-static-id"></a>
 
 Static reference to System id.
 
@@ -347,7 +354,7 @@ Static reference to System id.
 static System.id: number;
 ```
 
-##### id <a id="system-id"></a>
+##### .`id` <a id="system-id"></a>
 
 Unique identifier of an instance of the system.
 
@@ -355,7 +362,7 @@ Unique identifier of an instance of the system.
 System.id: readonly number;
 ```
 
-##### componentTypes <a id="system-component-types"></a>
+##### .`componentTypes` <a id="system-component-types"></a>
 
 IDs of the types of components the system expects the entity to have before it can act on. If you want to create a system that acts on all entities, enter `[-1]`.
 
@@ -363,7 +370,7 @@ IDs of the types of components the system expects the entity to have before it c
 System.componentTypes: readonly number[];
 ```
 
-##### states <a id="system-states"></a>
+##### .`states` <a id="system-states"></a>
 
 An array of states that allow the `update` method to be called.
 
@@ -371,7 +378,7 @@ An array of states that allow the `update` method to be called.
 System.states: readonly string[];
 ```
 
-##### frequency <a id="system-frequency"></a>
+##### .`frequency` <a id="system-frequency"></a>
 
 The maximum times per second the system should be updated.
 
@@ -379,15 +386,13 @@ The maximum times per second the system should be updated.
 System.frequency: readonly number;
 ```
 
-##### listeners <a id="system-listeners"></a>
-
-<!--  -->
+##### .`listeners` <a id="system-listeners"></a>
 
 ```ts
 System.listeners: readonly Record<string, Function[]>;
 ```
 
-##### world <a id="system-world"></a>
+##### .`world` <a id="system-world"></a>
 
 Reference to the ECS world.
 
@@ -397,7 +402,7 @@ System.world!: World;
 
 ### Methods
 
-##### trigger(event, data) <a id="system-trigger-method"></a>
+##### .`trigger(event, data)` <a id="system-trigger-method"></a>
 
 Allow to trigger any event. Systems interested in this event will be notified immediately.
 
@@ -408,7 +413,7 @@ Allow to trigger any event. Systems interested in this event will be notified im
 System.trigger?: (event: string, data: unknown) => void;
 ```
 
-##### enter(entity) <a id="system-enter-method"></a>
+##### .`enter(entity)` <a id="system-enter-method"></a>
 
 Called when:
 
@@ -422,7 +427,7 @@ Called when:
 System.enter?(entity: Entity): void;
 ```
 
-##### exit(entity) <a id="system-exit-method"></a>
+##### .`exit(entity)` <a id="system-exit-method"></a>
 
 Called when:
 
@@ -436,7 +441,7 @@ Called when:
 System.exit?(entity: Entity): void;
 ```
 
-##### onAdded() <a id="system-on-added-method"></a>
+##### .`onAdded()` <a id="system-on-added-method"></a>
 
 Called when the system is added to the world.
 
@@ -444,7 +449,7 @@ Called when the system is added to the world.
 System.onAdded?(): void;
 ```
 
-##### onRemoved() <a id="system-on-removed-method"></a>
+##### .`onRemoved()` <a id="system-on-removed-method"></a>
 
 Called when the system is removed from the world.
 
@@ -452,18 +457,18 @@ Called when the system is removed from the world.
 System.onRemoved?(): void;
 ```
 
-##### onStateChange(newState, prevState) <a id="system-on-state-change-method"></a>
+##### .`onStateChange(newState, previousState)` <a id="system-on-state-change-method"></a>
 
 Called when the world state changes.
 
 - `newState`: New world state.
-- `prevState`: Previous world state.
+- `previousState`: Previous world state.
 
 ```ts
-System.onStateChange?(newState: string, prevState: string): void;
+System.onStateChange?(newState: string, previousState: string): void;
 ```
 
-##### change(entity) <a id="system-change-method"></a>
+##### .`change(entity, added?, removed?)` <a id="system-change-method"></a>
 
 Called when an expected feature of the system is added or removed from the entity.
 
@@ -475,7 +480,7 @@ Called when an expected feature of the system is added or removed from the entit
 System.change?(entity: Entity, added?: Component, removed?: Component): void;
 ```
 
-##### update(time, delta, entity) <a id="system-update-method"></a>
+##### .`update(time, delta, entity)` <a id="system-update-method"></a>
 
 Called in updates, limited to the value set by the `frequency` property.
 
@@ -487,7 +492,7 @@ Called in updates, limited to the value set by the `frequency` property.
 System.update?(time: number, delta: number, entity: Entity): void;
 ```
 
-##### beforeUpdateAll(time, delta, entities) <a id="system-before-update-all-method"></a>
+##### .`beforeUpdateAll(time, delta, entities)` <a id="system-before-update-all-method"></a>
 
 Called before updating entities available for the system.
 
@@ -501,7 +506,7 @@ Called before updating entities available for the system.
 System.beforeUpdateAll?(time: number, delta: number, entities: Entity[]): void;
 ```
 
-##### afterUpdateAll(time, delta, entities) <a id="system-after-update-all-method"></a>
+##### .`afterUpdateAll(time, delta, entities)` <a id="system-after-update-all-method"></a>
 
 Called after performing update of entities available for the system.
 
@@ -515,28 +520,13 @@ Called after performing update of entities available for the system.
 System.afterUpdateAll?(time: number, delta: number, entities: Entity[]): void;
 ```
 
-##### destroy() <a id="system-destroy-method"></a>
+##### .`destroy()` <a id="system-destroy-method"></a>
 
 ```ts
 System.destroy(): void;
 ```
 
-## Component
-
-- Component
-  - `static` [register\<P\>()](#component-static-register-method): `Class<Component<T>>`
-
-### Methods
-
-##### `static` register\<P\>() <a id="component-static-register-method"></a>
-
-Register a new component class.
-
-```ts
-static Component.register<P>(): Class<Component<P>>;
-```
-
-## Component\<T\>
+## Component <a id="component"></a>
 
 Representation of a component in ECS.
 
@@ -557,23 +547,23 @@ Representation of a component in ECS.
 
 ### Properties
 
-##### `static` type <a id="component-static-type"></a>
+##### `static` Component.`type` <a id="component-static-type"></a>
 
 Unique reference to the component type id.
 
 ```ts
-static Component<T>.type: number;
+static Component.type: number;
 ```
 
-##### type <a id="component-type"></a>
+##### .`type` <a id="component-type"></a>
 
 Unique identifier of the component type.
 
 ```ts
-Component<T>.type: readonly number;
+Component.type: readonly number;
 ```
 
-##### data <a id="component-data"></a>
+##### .`data` <a id="component-data"></a>
 
 Values stored by the component.
 
@@ -581,17 +571,17 @@ Values stored by the component.
 Component<T>.data: T;
 ```
 
-##### attributes <a id="component-attributes"></a>
+##### .`attributes` <a id="component-attributes"></a>
 
 Secondary values used to save miscellaneous data required by some specialized systems.
 
 ```ts
-Component<T>.attributes: any;
+Component.attributes: any;
 ```
 
 ### Methods
 
-##### `static` allFrom(entity) <a id="#component-static-all-from-method"></a>
+##### `static` Component.`allFrom(entity)` <a id="#component-static-all-from-method"></a>
 
 Return all instances of the component from entity.
 
@@ -601,7 +591,7 @@ Return all instances of the component from entity.
 static Component<T>.allFrom(entity: Entity): Array<Component<T>>;
 ```
 
-##### `static` oneFrom(entity) <a id="#component-static-one-from-method"></a>
+##### `static` Component.`oneFrom(entity)` <a id="#component-static-one-from-method"></a>
 
 Return the first instance of the component from entity.
 

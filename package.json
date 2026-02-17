@@ -1,10 +1,10 @@
 {
   "name": "toosoon-ecs",
-  "version": "4.0.2",
+  "version": "5.0.0",
   "description": "Library providing Entity-Component-System (ECS) classes",
   "type": "module",
   "engines": {
-    "node": ">=16"
+    "node": ">=22"
   },
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -21,8 +21,7 @@
     "ecs",
     "entity",
     "system",
-    "component",
-    "game"
+    "component"
   ],
   "author": "Arnaud Rocca",
   "license": "MIT",
@@ -31,9 +30,9 @@
   },
   "homepage": "https://github.com/toosoon-dev/toosoon-ecs#readme",
   "dependencies": {
-    "toosoon-utils": "latest"
+    "toosoon-utils": ">=5.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.4.2"
+    "typescript": "5.9.3"
   }
 }

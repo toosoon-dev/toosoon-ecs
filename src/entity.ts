@@ -6,6 +6,7 @@ import type { Susbcription } from './types';
  *
  * @exports
  * @class Entity
+ * @abstract
  */
 export default abstract class Entity {
   /**
@@ -29,16 +30,6 @@ export default abstract class Entity {
   private _subscriptions: Susbcription[] = [];
 
   public active: boolean = true;
-
-  /**
-   * Called when this entity is added to the world
-   */
-  public onAdded?(): void;
-
-  /**
-   * Called when this entity is removed from the world
-   */
-  public onRemoved?(): void;
 
   constructor() {
     this.id = Entity.id++;
@@ -88,6 +79,16 @@ export default abstract class Entity {
       this._subscriptions.forEach((subscription) => subscription(this, undefined, component));
     }
   }
+
+  /**
+   * Called when this entity is added to the world
+   */
+  public onAdded?(): void;
+
+  /**
+   * Called when this entity is removed from the world
+   */
+  public onRemoved?(): void;
 
   /**
    * Allow interested parties to receive information when this entity's component list is updated

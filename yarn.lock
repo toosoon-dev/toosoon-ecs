@@ -2,12 +2,12 @@
 # yarn lockfile v1
 
 
-toosoon-utils@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/toosoon-utils/-/toosoon-utils-4.0.0.tgz#3e2f20a70c9797a9ce980bfe0f8c7e8ce3dd96ab"
-  integrity sha512-CI06ouRZea6ccIF0VB87NfbJvwZLJvv52HZQRnARocWBmIHMO0KxyTsLFzOZPELhxe4NNO0xknGEMIt1J91b9w==
+toosoon-utils@>=5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/toosoon-utils/-/toosoon-utils-5.0.0.tgz#b938edc8c0b0176a82b7b3c54eb74b6c695e5cd4"
+  integrity sha512-BwdFHiM14WGiJq6vkdXiWZbH02a4vJXfz5deu3YTQ0ZOAHtcEPp0lyRsAStniOMBBW8NthDMpKSVON6B6829Zw==
 
-typescript@^5.4.2:
-  version "5.4.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.4.2.tgz#0ae9cebcfae970718474fe0da2c090cad6577372"
-  integrity sha512-+2/g0Fds1ERlP6JsakQQDXjZdZMM+rqpamFZJEKh4kwTIn3iDkgKtby0CeNd5ATNZ4Ry1ax15TMx0W2V+miizQ==
+typescript@5.9.3:
+  version "5.9.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.9.3.tgz#5b4f59e15310ab17a216f5d6cf53ee476ede670f"
+  integrity sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==

@@ -9,14 +9,18 @@ type MapCallback<T, P> = (item: T) => P;
  *
  * @exports
  * @class Iterator
+ * @template T
  */
 export class Iterator<T> {
-  private next: NextCallback<T>;
-  private cache: T[] = [];
-  private end = false;
+  private _next: NextCallback<T>;
+  private _cache: T[] = [];
+  private _end = false;
 
+  /**
+   * @param {Function} next
+   */
   constructor(next: NextCallback<T>) {
-    this.next = next;
+    this._next = next;
   }
 
   /**
@@ -28,19 +32,19 @@ export class Iterator<T> {
     let index = 0;
     while (true) {
       let value;
-      if (this.cache.length <= index) {
-        if (this.end) {
+      if (this._cache.length <= index) {
+        if (this._end) {
           break;
         }
 
-        value = this.next(index++);
+        value = this._next(index++);
         if (typeof value === 'undefined') {
-          this.end = true;
+          this._end = true;
           break;
         }
-        this.cache.push(value);
+        this._cache.push(value);
       } else {
-        value = this.cache[index++];
+        value = this._cache[index++];
       }
 
       if (test(value) === false) {
@@ -85,6 +89,7 @@ export class Iterator<T> {
   /**
    * Create a new array with the results of calling a provided function on every element in this iterator
    *
+   * @template P
    * @param {Function} callback
    * @returns {P[]}
    */

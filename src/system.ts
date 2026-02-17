@@ -41,6 +41,9 @@ export default abstract class System {
    */
   readonly frequency: number;
 
+  /**
+   *
+   */
   readonly listeners: Record<string, Listener[]> = {};
 
   /**
@@ -48,21 +51,30 @@ export default abstract class System {
    */
   public world!: World;
 
-  // protected gui!: Gui;
-
   /**
-   * Add this system GUI to GUI Systems folder
-   *
-   * @param {Gui} gui
+   * @param {number[]} componentTypes IDs of the types of components this system expects the entity to have before it can act on
+   * @param {string[]} [states='Any'] An array of states that allow the `update` method to be called
+   * @param {number} [frequency=0] The maximum times per second this system should be updated
    */
-  // public addGUI?(gui: Gui): void;
+  constructor(componentTypes: number[], states: string[] | number = [ECSState.Any], frequency: number = 0) {
+    // Handle second argument as frequency
+    if (typeof states === 'number') {
+      frequency = states;
+      states = [ECSState.Any];
+    }
+
+    this.id = System.id++;
+    this.componentTypes = componentTypes;
+    this.states = states;
+    this.frequency = frequency;
+  }
 
   /**
    * Allow to trigger any event. Systems interested in this event will be notified immediately
    * Injected by ECS at runtime
    *
    * @param {string} event Event key name
-   * @param {any} data     Event data
+   * @param {any} data Event data
    */
   public trigger?: (event: string, data: any) => void;
 
@@ -99,16 +111,16 @@ export default abstract class System {
   /**
    * Called when the world state changes
    *
-   * @param {string} newState  New world state
-   * @param {string} prevState Previous world state
+   * @param {string} newState New world state
+   * @param {string} previousState Previous world state
    */
-  public onStateChange?(newState: string, prevState: string): void;
+  public onStateChange?(newState: string, previousState: string): void;
 
   /**
    * Called when an expected feature of this system is added or removed from the entity
    *
-   * @param {Entity} entity       Updated entity
-   * @param {Component} [added]   Component added to the entity
+   * @param {Entity} entity Updated entity
+   * @param {Component} [added] Component added to the entity
    * @param {Component} [removed] Component removed from the entity
    */
   public change?(entity: Entity, added?: Component, removed?: Component): void;
@@ -116,8 +128,8 @@ export default abstract class System {
   /**
    * Called in updates, limited to the value set by the `frequency` property
    *
-   * @param {number} time   World current game time
-   * @param {number} delta  Elapsed time since last update
+   * @param {number} time World current game time
+   * @param {number} delta Elapsed time since last update
    * @param {Entity} entity Updated entity
    */
   public update?(time: number, delta: number, entity: Entity): void;
@@ -126,8 +138,8 @@ export default abstract class System {
    * Called before updating entities available for this system
    * It is only called when there are entities with the characteristics expected by this system
    *
-   * @param {number} time       World current game time
-   * @param {number} delta      Elapsed time since last update
+   * @param {number} time World current game time
+   * @param {number} delta Elapsed time since last update
    * @param {Entity[]} entities Updated entities
    */
   public beforeUpdateAll?(time: number, delta: number, entities: Entity[]): void;
@@ -136,29 +148,11 @@ export default abstract class System {
    * Called after performing update of entities available for this system
    * It is only called when there are entities with the characteristics expected by this system
    *
-   * @param {number} time       World current game time
-   * @param {number} delta      Elapsed time since last update
+   * @param {number} time World current game time
+   * @param {number} delta Elapsed time since last update
    * @param {Entity[]} entities Updated entities
    */
   public afterUpdateAll?(time: number, delta: number, entities: Entity[]): void;
-
-  /**
-   * @param {number[]} componentTypes IDs of the types of components this system expects the entity to have before it can act on
-   * @param {string[]} [states='Any'] An array of states that allow the `update` method to be called
-   * @param {number} [frequency=0]    The maximum times per second this system should be updated
-   */
-  constructor(componentTypes: number[], states: string[] | number = [ECSState.Any], frequency: number = 0) {
-    // Handle second argument as frequency
-    if (typeof states === 'number') {
-      frequency = states;
-      states = [ECSState.Any];
-    }
-
-    this.id = System.id++;
-    this.componentTypes = componentTypes;
-    this.states = states;
-    this.frequency = frequency;
-  }
 
   /**
    * Allow the system to listen for a specific event that occurred during any update

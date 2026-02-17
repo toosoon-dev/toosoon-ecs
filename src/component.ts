@@ -28,6 +28,8 @@ type ComponentClassType<P> = (new (data: P) => Component<P>) & {
  *
  * @exports
  * @class Component
+ * @abstract
+ * @template {any} [T=any]
  */
 export default abstract class Component<T = any> {
   /**
@@ -38,7 +40,7 @@ export default abstract class Component<T = any> {
   /**
    * Unique identifier of this component type
    */
-  readonly type: number;
+  public readonly type: number;
 
   /**
    * Values stored by this component
@@ -52,7 +54,7 @@ export default abstract class Component<T = any> {
 
   /**
    * @param {number} type Unique identifier of this component type
-   * @param {T} data      Initial values stored by this component
+   * @param {T} data Initial values stored by this component
    */
   constructor(type: number, data: T) {
     this.type = type;
@@ -64,7 +66,7 @@ export default abstract class Component<T = any> {
    *
    * @returns {ComponentClassType}
    */
-  public static register<P>(): ComponentClassType<P> {
+  static register<P>(): ComponentClassType<P> {
     const type = Component.type++;
 
     class CustomComponent extends Component<P> {

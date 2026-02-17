@@ -30,52 +30,55 @@ export default class World {
    */
   public static System = System;
 
+  /**
+   * This world unique identifier
+   */
   readonly id: string;
 
   /**
    * All systems in this world
    */
-  private systems: System[] = [];
+  private _systems: System[] = [];
 
   /**
    * All entities in this world
    */
-  private entities: Entity[] = [];
+  private _entities: Entity[] = [];
 
   /**
    * Index the systems that must be run for each entity
    */
-  private entitySystems: Record<number, System[]> = {};
+  private _entitySystems: Record<number, System[]> = {};
 
   /**
    * Record the last instant a system was run in this world for an entity, using real time
    */
-  private entitySystemLastUpdate: Record<number, Record<number, number>> = {};
+  private _entitySystemLastUpdate: Record<number, Record<number, number>> = {};
 
   /**
    * Record the last instant a system was run in this world for an entity, using game time
    */
-  private entitySystemLastUpdateGame: Record<number, Record<number, number>> = {};
+  private _entitySystemLastUpdateGame: Record<number, Record<number, number>> = {};
 
   /**
    * Save subscriptions made to entities
    */
-  private entitySubscription: Record<number, () => void> = {};
+  private _entitySubscription: Record<number, () => void> = {};
 
   /**
    * Save queries
    */
-  private queryCache: Record<number, Entity[]> = {};
+  private _queryCache: Record<number, Entity[]> = {};
 
   /**
    * World state determining which systems are updated
    */
-  private state = '';
+  private _state = '';
 
   /**
    * Allow you to apply slow motion effect on systems
-   * When timeScale is 1, the timestamp and delta parameters received by the systems are consistent with the actual timestamp
-   * When timeScale is 0.5, the values received by systems will be half of the actual value
+   * When `timeScale` is 1, the timestamp and delta parameters received by the systems are consistent with the actual timestamp
+   * When `timeScale` is 0.5, the values received by systems will be half of the actual value
    *
    * ATTENTION! The systems continue to be invoked obeying their normal frequencies, what changes is only the values received in the timestamp and delta parameters
    *
@@ -85,7 +88,7 @@ export default class World {
   /**
    * Last execution of update method
    */
-  private lastUpdate: number = now();
+  private _lastUpdate: number = now();
 
   /**
    * The timestamp of the game, different from the real world, is updated according to timeScale
@@ -93,7 +96,7 @@ export default class World {
    *
    * This value is sent to the systems update method
    */
-  private gameTime: number = 0;
+  private _gameTime: number = 0;
 
   /**
    * @param {string} [id='']
@@ -108,13 +111,13 @@ export default class World {
    * Injection for the system trigger method
    *
    * @param {string} event Event key name
-   * @param {any} data     Event data
+   * @param {any} data Event data
    */
-  private systemTrigger = (event: string, data: any): void => {
-    this.systems.forEach((system) => {
+  private _systemTrigger = (event: string, data: any): void => {
+    this._systems.forEach((system) => {
       const listeners: Record<string, Listener[]> = system.listeners;
       if (listeners.hasOwnProperty(event) && listeners[event].length > 0) {
-        this.inject(system);
+        this._inject(system);
         const entitiesIterator = this.query(system.componentTypes);
         listeners[event].forEach((listener) => listener(data, entitiesIterator));
       }
@@ -127,9 +130,9 @@ export default class World {
    * @param {string} state New world state
    */
   public setState(state: string): void {
-    const oldState = this.state;
-    this.state = state;
-    this.systems.forEach((system) => system.onStateChange?.(state, oldState));
+    const oldState = this._state;
+    this._state = state;
+    this._systems.forEach((system) => system.onStateChange?.(state, oldState));
   }
 
   /**
@@ -138,29 +141,29 @@ export default class World {
    * @param {Entity} entity Entity to add to this world
    */
   public addEntity(entity: Entity): void {
-    if (!entity || this.entities.includes(entity)) {
+    if (!entity || this._entities.includes(entity)) {
       return;
     }
 
-    this.entities.push(entity);
-    this.entitySystemLastUpdate[entity.id] = {};
-    this.entitySystemLastUpdateGame[entity.id] = {};
+    this._entities.push(entity);
+    this._entitySystemLastUpdate[entity.id] = {};
+    this._entitySystemLastUpdateGame[entity.id] = {};
 
     // Remove entity subscription
-    if (this.entitySubscription.hasOwnProperty(entity.id)) {
-      this.entitySubscription[entity.id]();
-      delete this.entitySubscription[entity.id];
+    if (this._entitySubscription.hasOwnProperty(entity.id)) {
+      this._entitySubscription[entity.id]();
+      delete this._entitySubscription[entity.id];
     }
 
     // Add new subscription
-    this.entitySubscription[entity.id] = entity.subscribe((entity, added, removed) => {
-      this.onEntityUpdate(entity, added, removed);
-      this.indexEntity(entity);
+    this._entitySubscription[entity.id] = entity.subscribe((entity, added, removed) => {
+      this._onEntityUpdate(entity, added, removed);
+      this._indexEntity(entity);
     });
 
     entity.onAdded?.();
 
-    this.indexEntity(entity);
+    this._indexEntity(entity);
   }
 
   /**
@@ -177,9 +180,9 @@ export default class World {
       return;
     }
 
-    // Clear up queryCache
+    // Clear up _queryCache
     const removeCached: number[] = [];
-    Object.keys(this.queryCache).forEach((component) => {
+    Object.keys(this._queryCache).forEach((component) => {
       const type = Number(component);
       if (entity.getComponents(type).length > 0) {
         removeCached.push(type);
@@ -187,24 +190,24 @@ export default class World {
     });
 
     removeCached.forEach((cache) => {
-      delete this.queryCache[cache];
+      delete this._queryCache[cache];
     });
 
-    const index = this.entities.indexOf(entity);
+    const index = this._entities.indexOf(entity);
     if (index >= 0) {
-      this.entities.splice(index, 1);
+      this._entities.splice(index, 1);
     }
 
     // Remove entity subscription
-    if (this.entitySubscription.hasOwnProperty(entity.id)) {
-      this.entitySubscription[entity.id]();
-      delete this.entitySubscription[entity.id];
+    if (this._entitySubscription.hasOwnProperty(entity.id)) {
+      this._entitySubscription[entity.id]();
+      delete this._entitySubscription[entity.id];
     }
 
     // Call system exit
-    this.entitySystems[entity.id]?.forEach((system) => {
+    this._entitySystems[entity.id]?.forEach((system) => {
       if (system.exit) {
-        this.inject(system);
+        this._inject(system);
         system.exit(entity);
       }
     });
@@ -212,9 +215,9 @@ export default class World {
     entity.onRemoved?.();
 
     // Remove associative indexes
-    delete this.entitySystems[entity.id];
-    delete this.entitySystemLastUpdate[entity.id];
-    delete this.entitySystemLastUpdateGame[entity.id];
+    delete this._entitySystems[entity.id];
+    delete this._entitySystemLastUpdate[entity.id];
+    delete this._entitySystemLastUpdateGame[entity.id];
 
     if (dispose) {
       entity = null as any;
@@ -227,31 +230,31 @@ export default class World {
    * @param {System} system System to add to this world
    */
   public addSystem(system: System): void {
-    if (this.systems.includes(system)) {
+    if (this._systems.includes(system)) {
       return;
     }
 
-    this.systems.push(system);
+    this._systems.push(system);
 
     // Index entities
-    this.entities.forEach((entity) => {
-      this.indexEntity(entity, system);
+    this._entities.forEach((entity) => {
+      this._indexEntity(entity, system);
     });
 
     // Call system enter
-    this.entities.forEach((entity) => {
+    this._entities.forEach((entity) => {
       if (entity.active) {
-        const systems = this.entitySystems[entity.id];
+        const systems = this._entitySystems[entity.id];
         if (systems && systems.includes(system)) {
           if (system.enter) {
-            this.inject(system);
+            this._inject(system);
             system.enter(entity);
           }
         }
       }
     });
 
-    this.inject(system);
+    this._inject(system);
     system.onAdded?.();
   }
 
@@ -269,20 +272,20 @@ export default class World {
     }
 
     // Call system exit
-    this.entities.forEach((entity) => {
+    this._entities.forEach((entity) => {
       if (entity.active) {
-        const systems = this.entitySystems[entity.id];
+        const systems = this._entitySystems[entity.id];
         if (systems?.includes(system)) {
           if (system.exit) {
-            this.inject(system);
+            this._inject(system);
             system.exit(entity);
           }
         }
       }
     });
 
-    const index = this.systems.indexOf(system);
-    this.systems.splice(index, 1);
+    const index = this._systems.indexOf(system);
+    this._systems.splice(index, 1);
 
     if (system.world === this) {
       system.destroy();
@@ -292,7 +295,7 @@ export default class World {
     }
 
     // Index entities
-    this.entities.forEach((entity) => this.indexEntity(entity, system));
+    this._entities.forEach((entity) => this._indexEntity(entity, system));
   }
 
   /**
@@ -305,8 +308,8 @@ export default class World {
     let index = 0;
 
     return new Iterator<Entity>(() => {
-      outside: for (let l = this.entities.length; index < l; index++) {
-        const entity = this.entities[index];
+      outside: for (let l = this._entities.length; index < l; index++) {
+        const entity = this._entities[index];
 
         // Prevent unnecessary processing
         if (componentTypes.includes(-1)) {
@@ -337,12 +340,12 @@ export default class World {
    * @returns {Entity[]}
    */
   public queryEntitiesByComponent(componentType: number): Entity[] {
-    if (this.queryCache.hasOwnProperty(componentType)) {
-      return this.queryCache[componentType];
+    if (this._queryCache.hasOwnProperty(componentType)) {
+      return this._queryCache[componentType];
     }
 
     const entities: Entity[] = [];
-    this.entities.forEach((entity) => {
+    this._entities.forEach((entity) => {
       const entityComponentIDs: number[] = [-1].concat(
         Object.keys(entity.components).map((key) => Number.parseInt(key, 10))
       );
@@ -353,7 +356,7 @@ export default class World {
     });
 
     if (entities.length > 0) {
-      this.queryCache[componentType] = entities;
+      this._queryCache[componentType] = entities;
     }
 
     return entities;
@@ -367,9 +370,9 @@ export default class World {
    * @param {System} system System to inject in this world
    * @returns {System}
    */
-  private inject(system: System): System {
+  private _inject(system: System): System {
     system.world = this;
-    system.trigger = this.systemTrigger;
+    system.trigger = this._systemTrigger;
     return system;
   }
 
@@ -379,14 +382,14 @@ export default class World {
    * @param {Entity} entity Entity to index
    * @param {System} system System to index
    */
-  private indexEntitySystem = (entity: Entity, system: System): void => {
-    const index = this.entitySystems[entity.id].indexOf(system);
+  private _indexEntitySystem = (entity: Entity, system: System): void => {
+    const index = this._entitySystems[entity.id].indexOf(system);
 
-    if (!this.systems.includes(system)) {
+    if (!this._systems.includes(system)) {
       if (index >= 0) {
-        this.entitySystems[entity.id].splice(index, 1);
-        delete this.entitySystemLastUpdate[entity.id][system.id];
-        delete this.entitySystemLastUpdateGame[entity.id][system.id];
+        this._entitySystems[entity.id].splice(index, 1);
+        delete this._entitySystemLastUpdate[entity.id][system.id];
+        delete this._entitySystemLastUpdateGame[entity.id][system.id];
       }
       return;
     }
@@ -402,13 +405,13 @@ export default class World {
         if (index >= 0) {
           // Inform the system of relationship removal
           if (system.exit) {
-            this.inject(system);
+            this._inject(system);
             system.exit(entity);
           }
 
-          this.entitySystems[entity.id].splice(index, 1);
-          delete this.entitySystemLastUpdate[entity.id][system.id];
-          delete this.entitySystemLastUpdateGame[entity.id][system.id];
+          this._entitySystems[entity.id].splice(index, 1);
+          delete this._entitySystemLastUpdate[entity.id][system.id];
+          delete this._entitySystemLastUpdateGame[entity.id][system.id];
         }
         return;
       }
@@ -416,13 +419,13 @@ export default class World {
 
     // Entity has all the components this system needs
     if (index < 0) {
-      this.entitySystems[entity.id].push(system);
-      this.entitySystemLastUpdate[entity.id][system.id] = now();
-      this.entitySystemLastUpdateGame[entity.id][system.id] = this.gameTime;
+      this._entitySystems[entity.id].push(system);
+      this._entitySystemLastUpdate[entity.id][system.id] = now();
+      this._entitySystemLastUpdateGame[entity.id][system.id] = this._gameTime;
 
       // Informs the system about the new relationship
       if (system.enter) {
-        this.inject(system);
+        this._inject(system);
         system.enter(entity);
       }
     }
@@ -431,32 +434,32 @@ export default class World {
   /**
    * Index an entity
    *
-   * @param {Entity} entity   Entity to index
+   * @param {Entity} entity Entity to index
    * @param {System} [system] System to index
    */
-  private indexEntity(entity: Entity, system?: System): void {
-    if (!this.entitySystems.hasOwnProperty(entity.id)) {
-      this.entitySystems[entity.id] = [];
+  private _indexEntity(entity: Entity, system?: System): void {
+    if (!this._entitySystems.hasOwnProperty(entity.id)) {
+      this._entitySystems[entity.id] = [];
     }
 
     if (system) {
       // Index entity for a specific system
-      this.indexEntitySystem(entity, system);
+      this._indexEntitySystem(entity, system);
     } else {
       // Index the entire entity
-      this.systems.forEach((system) => this.indexEntitySystem(entity, system));
+      this._systems.forEach((system) => this._indexEntitySystem(entity, system));
     }
   }
 
   /**
    * Call the `change` method of the systems in this world when an entity receives or loses components
    *
-   * @param {Entity} entity       Updated entity
-   * @param {Component} [added]   Component added to the entity
+   * @param {Entity} entity Updated entity
+   * @param {Component} [added] Component added to the entity
    * @param {Component} [removed] Component removed from the entity
    */
-  private onEntityUpdate(entity: Entity, added?: Component, removed?: Component): void {
-    const systems = this.entitySystems[entity.id];
+  private _onEntityUpdate(entity: Entity, added?: Component, removed?: Component): void {
+    const systems = this._entitySystems[entity.id];
     if (!systems) {
       return;
     }
@@ -477,7 +480,7 @@ export default class World {
 
     // Notify systems
     toNotify.forEach((system) => {
-      this.inject(system);
+      this._inject(system);
       const all = system.componentTypes.includes(-1);
       system.change?.(
         entity,
@@ -494,25 +497,25 @@ export default class World {
   public update(): void {
     const time = now();
 
-    this.gameTime += (time - this.lastUpdate) * this.timeScale;
-    this.lastUpdate = time;
+    this._gameTime += (time - this._lastUpdate) * this.timeScale;
+    this._lastUpdate = time;
 
     // Save systems & entities to update
     const updated: Record<string, { system: System; delta: number; entities: Entity[] }> = {};
 
-    this.entities.forEach((entity) => {
+    this._entities.forEach((entity) => {
       if (!entity.active) {
         this.removeEntity(entity);
         return;
       }
 
-      const systems = this.entitySystems[entity.id];
+      const systems = this._entitySystems[entity.id];
       if (!systems) {
         return;
       }
 
-      const entityLastUpdates = this.entitySystemLastUpdate[entity.id];
-      const entityLastUpdatesGame = this.entitySystemLastUpdateGame[entity.id];
+      const entityLastUpdates = this._entitySystemLastUpdate[entity.id];
+      const entityLastUpdatesGame = this._entitySystemLastUpdateGame[entity.id];
       let elapsed, elapsedScaled, interval;
 
       this.getActiveSystems().forEach((system) => {
@@ -522,7 +525,7 @@ export default class World {
           // Create a new "update" for current system
           if (!updated.hasOwnProperty(id)) {
             elapsed = time - entityLastUpdates[system.id];
-            elapsedScaled = this.gameTime - entityLastUpdatesGame[system.id];
+            elapsedScaled = this._gameTime - entityLastUpdatesGame[system.id];
 
             // Limit FPS
             if (system.frequency > 0) {
@@ -533,10 +536,10 @@ export default class World {
 
               // Adjust for interval not being a multiple of RAF's interval (16.7ms)
               entityLastUpdates[system.id] = time - (elapsed % interval);
-              entityLastUpdatesGame[system.id] = this.gameTime;
+              entityLastUpdatesGame[system.id] = this._gameTime;
             } else {
               entityLastUpdates[system.id] = time;
-              entityLastUpdatesGame[system.id] = this.gameTime;
+              entityLastUpdatesGame[system.id] = this._gameTime;
             }
 
             // Create current system's "update"
@@ -551,10 +554,10 @@ export default class World {
 
     // Update systems
     Object.values(updated).forEach(({ system, delta, entities }) => {
-      this.inject(system);
-      system.beforeUpdateAll?.(this.gameTime, delta, entities);
-      entities.forEach((entity) => system.update?.(this.gameTime, delta, entity));
-      system.afterUpdateAll?.(this.gameTime, delta, entities);
+      this._inject(system);
+      system.beforeUpdateAll?.(this._gameTime, delta, entities);
+      entities.forEach((entity) => system.update?.(this._gameTime, delta, entity));
+      system.afterUpdateAll?.(this._gameTime, delta, entities);
     });
   }
 
@@ -562,8 +565,8 @@ export default class World {
    * Remove all entities and systems in this world
    */
   public destroy(): void {
-    this.entities.forEach((entity) => this.removeEntity(entity));
-    this.systems.forEach((system) => this.removeSystem(system));
+    this._entities.forEach((entity) => this.removeEntity(entity));
+    this._systems.forEach((system) => this.removeSystem(system));
   }
 
   /**
@@ -573,7 +576,7 @@ export default class World {
    * @returns {Entity|undefined}
    */
   public getEntity(id: number): Entity | undefined {
-    return this.entities.find((entity) => entity.id === id);
+    return this._entities.find((entity) => entity.id === id);
   }
 
   /**
@@ -583,17 +586,17 @@ export default class World {
    * @returns {System|undefined}
    */
   public getSystem(id: number): System | undefined {
-    return this.systems.find((system) => system.id === id);
+    return this._systems.find((system) => system.id === id);
   }
 
   /**
    * Get all active systems
    *
-   * @param {[string]} state State to match
+   * @param {[string]} [state] State to match
    * @returns {System[]}
    */
-  public getActiveSystems(state: string = this.state): System[] {
-    return this.systems.filter((system) => system.states.includes(ECSState.Any) || system.states.includes(state));
+  public getActiveSystems(state: string = this._state): System[] {
+    return this._systems.filter((system) => system.states.includes(ECSState.Any) || system.states.includes(state));
   }
 
   /**
